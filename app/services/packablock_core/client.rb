@@ -7,7 +7,7 @@ module PackablockCore
     def initialize(base_url: nil)
       @base_url = base_url || ENV.fetch("REGISTRY_API_URL", "http://localhost:3030")
       @token = ENV.fetch("INTERNAL_REGISTRY_TOKEN", "internal_secret_token_1234")
-      
+
       @connection = Faraday.new(url: @base_url) do |conn|
         conn.headers["X-Packablock-Internal-Token"] = @token
         conn.headers["Content-Type"] = "application/json"
@@ -31,7 +31,7 @@ module PackablockCore
       params[:repo_id] = repo_id if repo_id
       params[:owner] = owner if owner
       params[:repo] = repo if repo
-      
+
       response = @connection.get("/api/v1/internal/chain/tree", params)
       handle_response(response)
     end

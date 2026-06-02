@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_admin!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :link_repository, :unlink_repository]
+  before_action :set_project, only: [ :show, :edit, :update, :destroy, :link_repository, :unlink_repository ]
 
   def index
     @projects = Project.includes(:project_repositories).all

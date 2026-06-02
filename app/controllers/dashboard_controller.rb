@@ -3,7 +3,7 @@ class DashboardController < ApplicationController
 
   def index
     client = PackablockCore::Client.new
-    
+
     # Fetch registry diagnostics
     begin
       @system_status = client.fetch_system_status

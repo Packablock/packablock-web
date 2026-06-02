@@ -13,7 +13,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :repositories, only: [:show] do
+    resources :repositories, only: [ :show ] do
       member do
         post :toggle_premium
         post :revoke
