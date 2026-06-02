@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: packablock-web
+    network_mode: host
+    environment:
+      - RAILS_ENV=development
+      - INTERNAL_REGISTRY_TOKEN=internal_secret_token_1234
+    volumes:
+      - .:/rails
+      # Avoid mounting host node_modules or tmp lock files over container environment
+      - /rails/tmp
+    restart: unless-stopped
