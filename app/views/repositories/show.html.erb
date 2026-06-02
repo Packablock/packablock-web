@@ -123,9 +123,24 @@
     alert("Token copied to clipboard!");
   }
 
-  document.addEventListener("turbo:load", function() {
-    const treeUrl = "<%= tree_repository_path(@repository['id']) %>";
+  document.addEventListener("turbo:load", initTree);
+
+  // Run immediately or on DOM content loaded
+  if (document.readyState === "complete" || document.readyState === "interactive") {
+    initTree();
+  } else {
+    document.addEventListener("DOMContentLoaded", initTree);
+  }
+
+  function initTree() {
     const svg = d3.select("#lineage-tree");
+    if (svg.empty()) return;
+
+    // Prevent double-initialization
+    if (svg.property("initialized")) return;
+    svg.property("initialized", true);
+
+    const treeUrl = "<%= tree_repository_path(@repository['id']) %>";
     const loading = document.getElementById("loading-overlay");
     const inspector = document.getElementById("inspector-content");
 
@@ -135,7 +150,7 @@
         return response.json();
       })
       .then(data => {
-        loading.style.display = "none";
+        if (loading) loading.style.display = "none";
         if (data.success && data.tree) {
           renderLineageTree(data.tree);
         } else {
@@ -143,7 +158,7 @@
         }
       })
       .catch(err => {
-        loading.style.display = "none";
+        if (loading) loading.style.display = "none";
         showError("Unable to load package chain tree. Fastify registry may be offline.");
       });
 
