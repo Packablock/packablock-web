@@ -1,0 +1,304 @@
+<div class="flex flex-col gap-8 w-full">
+  <!-- Title / Breadcrumbs -->
+  <div class="flex justify-between items-start flex-wrap gap-4">
+    <div>
+      <div class="flex items-center gap-2 text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">
+        <%= link_to "Dashboard", dashboard_path, class: "hover:text-white" %>
+        <% if @project %>
+          <span>/</span>
+          <%= link_to "Projects", projects_path, class: "hover:text-white" %>
+          <span>/</span>
+          <%= link_to @project.name, project_path(@project), class: "hover:text-white" %>
+        <% end %>
+        <span>/</span>
+        <span class="text-white font-mono"><%= @repository["owner"] %>/<%= @repository["repo"] %></span>
+      </div>
+      <h1 class="text-3xl font-extrabold tracking-tight text-white font-mono"><%= @repository["owner"] %>/<%= @repository["repo"] %></h1>
+      <p class="text-sm text-gray-400">Cryptographic audit log chain tree & pinned keys.</p>
+    </div>
+    
+    <div class="flex gap-3">
+      <%= link_to "Back to Console", dashboard_path, class: "px-4 py-2 text-xs font-bold rounded-lg border border-[#1f2937] text-gray-400 hover:text-white hover:border-gray-500 transition-colors uppercase tracking-wider flex items-center justify-center" %>
+    </div>
+  </div>
+
+  <!-- Realtime credential audit -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="border border-[#1f2937] rounded-xl bg-[#111827]/20 p-6 flex flex-col gap-6">
+      <div>
+        <h3 class="text-lg font-bold text-white">Registry Credentials</h3>
+        <p class="text-xs text-gray-400">Zero-trust push configurations and state tokens.</p>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Push Token</label>
+          <div class="flex gap-2">
+            <input type="text" value="<%= @repository["registration_token"] %>" readonly class="w-full bg-[#0b0f19] border border-[#1f2937] rounded-lg px-3 py-2 text-xs text-gray-300 font-mono focus:outline-none" id="token-copy-field">
+            <button onclick="copyToken()" class="px-4 py-2 text-xs font-bold rounded-lg bg-[#111827] border border-[#1f2937] text-white hover:bg-[#1f2937] cursor-pointer">Copy</button>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center text-sm border-t border-[#1f2937] pt-4 mt-2">
+          <span class="text-xs text-gray-400">Premium Account Tier:</span>
+          <% if @repository["is_premium"] == 1 %>
+            <span class="text-xs font-bold px-2 py-0.5 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase">Active Premium</span>
+          <% else %>
+            <span class="text-xs font-bold px-2 py-0.5 rounded border border-gray-600 bg-gray-800 text-gray-400 uppercase">Standard Tier</span>
+          <% end %>
+        </div>
+
+        <div class="flex gap-3 border-t border-[#1f2937] pt-4 mt-2">
+          <%= button_to "Toggle Premium Access", toggle_premium_repository_path(@repository["id"]), method: :post, class: "flex-1 py-2.5 rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] font-bold text-xs cursor-pointer hover:bg-[#8b5cf6] hover:text-black transition-all uppercase tracking-wider" %>
+          <%= button_to "Revoke Auth Token", revoke_repository_path(@repository["id"]), method: :post, data: { confirm: "Are you sure you want to permanently revoke this repository token?" }, class: "flex-1 py-2.5 rounded-lg border border-[#ef4444]/30 bg-[#ef4444]/10 text-[#ef4444] font-bold text-xs cursor-pointer hover:bg-[#ef4444] hover:text-black transition-all uppercase tracking-wider" unless @repository["registration_token"].start_with?("pb_revoked_") %>
+        </div>
+      </div>
+    </div>
+
+    <div class="border border-[#1f2937] rounded-xl bg-[#111827]/20 p-6 flex flex-col gap-6">
+      <div>
+        <h3 class="text-lg font-bold text-white">Challenge Trust Pinned Identity</h3>
+        <p class="text-xs text-gray-400">Cryptographic identity pinned in registry database.</p>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-xs text-gray-400">ACME Verification Status:</span>
+          <span class="text-xs font-bold px-2.5 py-0.5 rounded border border-[#10b981]/30 bg-[#10b981]/10 text-[#10b981] uppercase"><%= @repository["verification_status"] || "none" %></span>
+        </div>
+
+        <div class="flex flex-col gap-1.5 border-t border-[#1f2937] pt-3">
+          <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Active Verification Challenge Nonce</label>
+          <input type="text" value="<%= @repository["challenge_nonce"] || "N/A" %>" readonly class="w-full bg-[#0b0f19] border border-[#1f2937] rounded-lg px-3 py-2 text-xs text-gray-400 font-mono focus:outline-none">
+        </div>
+
+        <div class="flex flex-col gap-1.5 border-t border-[#1f2937] pt-3">
+          <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Pinned GPG / Sigstore Trust Anchor</label>
+          <textarea readonly class="w-full bg-[#0b0f19] border border-[#1f2937] rounded-lg px-3 py-2 text-[10px] text-gray-400 font-mono focus:outline-none h-[80px] resize-none"><%= @repository["pinned_public_key"] || "No public key pinned yet." %></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D3 Visual Tree DAG & Node Inspector -->
+  <div class="border border-[#1f2937] rounded-xl bg-[#111827]/20 p-6 flex flex-col gap-6">
+    <div class="flex justify-between items-center flex-wrap gap-4">
+      <div>
+        <h3 class="text-xl font-bold text-white">Package History Ledger Lineage</h3>
+        <p class="text-xs text-gray-400">Lineage tree representing cryptographic verification checkpoints. Click blocks to inspect metadata.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- D3 Interactive Tree (2 Cols) -->
+      <div class="lg:col-span-2 border border-[#1f2937] rounded-lg bg-[#0b0f19] overflow-hidden relative" style="height: 520px;">
+        <div id="loading-overlay" class="absolute inset-0 bg-[#0b0f19]/80 backdrop-blur-sm flex justify-center items-center text-xs font-mono text-[#10b981] z-10 animate-pulse">
+          Fetching cryptographic block structure...
+        </div>
+        <svg id="lineage-tree" class="w-full h-full cursor-grab"></svg>
+      </div>
+
+      <!-- Node Inspector Details (1 Col) -->
+      <div class="border border-[#1f2937] rounded-lg bg-[#0b0f19]/50 p-6 flex flex-col gap-5" id="inspector-panel">
+        <div>
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-1">Ledger Inspector</h4>
+          <p class="text-[11px] text-gray-500">Click any block in the lineage tree to parse its cryptographic attributes.</p>
+        </div>
+
+        <div class="flex flex-col gap-4" id="inspector-content">
+          <div class="text-center py-12 text-xs text-gray-600 italic">No block selected.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script>
+  function copyToken() {
+    const copyText = document.getElementById("token-copy-field");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(copyText.value);
+    alert("Token copied to clipboard!");
+  }
+
+  document.addEventListener("turbo:load", function() {
+    const treeUrl = "<%= tree_repository_path(@repository['id']) %>";
+    const svg = d3.select("#lineage-tree");
+    const loading = document.getElementById("loading-overlay");
+    const inspector = document.getElementById("inspector-content");
+
+    fetch(treeUrl)
+      .then(response => {
+        if (!response.ok) throw new Error("Offline or registry API failed");
+        return response.json();
+      })
+      .then(data => {
+        loading.style.display = "none";
+        if (data.success && data.tree) {
+          renderLineageTree(data.tree);
+        } else {
+          showError("Registry has no package history log initialized yet.");
+        }
+      })
+      .catch(err => {
+        loading.style.display = "none";
+        showError("Unable to load package chain tree. Fastify registry may be offline.");
+      });
+
+    function showError(message) {
+      svg.html("");
+      inspector.innerHTML = `<div class="text-center py-12 text-xs text-gray-600 italic">Audit tree unavailable.</div>`;
+      const g = svg.append("g")
+        .attr("transform", "translate(40, 260)");
+      g.append("text")
+        .attr("fill", "#ef4444")
+        .attr("font-size", "12px")
+        .attr("font-family", "monospace")
+        .text(message);
+    }
+
+    function renderLineageTree(rootData) {
+      svg.html("");
+      const width = document.getElementById("lineage-tree").clientWidth || 600;
+      const height = 500;
+
+      const margin = { top: 20, right: 120, bottom: 20, left: 140 };
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+
+      // Enable zoom and pan
+      const zoomGroup = svg.append("g");
+      const zoom = d3.zoom()
+        .scaleExtent([0.5, 2.5])
+        .on("zoom", (event) => {
+          zoomGroup.attr("transform", event.transform);
+        });
+      svg.call(zoom);
+
+      // Construct layout
+      const tree = d3.tree().size([innerHeight, innerWidth]);
+      const rootNode = d3.hierarchy(rootData);
+      tree(rootNode);
+
+      // Center view horizontally initially
+      svg.call(zoom.transform, d3.zoomIdentity.translate(margin.left, margin.top));
+
+      // Draw lines
+      zoomGroup.append("g")
+        .attr("fill", "none")
+        .attr("stroke", "#1f2937")
+        .attr("stroke-width", 2)
+        .selectAll("path")
+        .data(rootNode.links())
+        .join("path")
+        .attr("d", d3.linkHorizontal()
+          .x(d => d.y)
+          .y(d => d.x)
+        );
+
+      // Draw nodes
+      const node = zoomGroup.append("g")
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-width", 3)
+        .selectAll("g")
+        .data(rootNode.descendants())
+        .join("g")
+        .attr("transform", d => `translate(${d.y},${d.x})`)
+        .on("click", (event, d) => {
+          event.stopPropagation();
+          inspectNode(d.data);
+        })
+        .style("cursor", "pointer");
+
+      // Glowing circles
+      node.append("circle")
+        .attr("fill", d => {
+          if (d.data.type === "root") return "#1e293b";
+          if (d.data.type === "rollover") return "#f59e0b";
+          return "#10b981";
+        })
+        .attr("stroke", d => {
+          if (d.data.type === "root") return "#64748b";
+          if (d.data.type === "rollover") return "#d97706";
+          return "#059669";
+        })
+        .attr("r", 7.5)
+        .attr("class", d => d.data.type === "root" ? "" : "transition-all hover:scale-125");
+
+      // Labels
+      node.append("text")
+        .attr("dy", "0.31em")
+        .attr("x", d => d.children ? -12 : 12)
+        .attr("text-anchor", d => d.children ? "end" : "start")
+        .text(d => d.data.name)
+        .attr("fill", "#f3f4f6")
+        .attr("font-size", "10px")
+        .attr("font-family", "monospace")
+        .clone(true).lower()
+        .attr("stroke", "#0b0f19")
+        .attr("stroke-width", 3);
+
+      // Auto-inspect the root node
+      inspectNode(rootData);
+    }
+
+    function inspectNode(node) {
+      if (node.type === "root") {
+        inspector.innerHTML = `
+          <div class="flex flex-col gap-4">
+            <div>
+              <span class="text-[9px] font-black tracking-widest text-gray-500 uppercase">Anchor Type</span>
+              <div class="text-sm font-bold text-white mt-0.5">Genesis Anchor Point</div>
+            </div>
+            <div class="border-t border-[#1f2937] pt-3">
+              <span class="text-[9px] font-black tracking-widest text-gray-500 uppercase">Root Hash Identifier</span>
+              <div class="text-[10px] font-mono text-gray-400 mt-1 break-all bg-[#0b0f19] p-2.5 rounded border border-[#1f2937]">${node.id}</div>
+            </div>
+            <div class="text-[11px] text-gray-500 italic border-t border-[#1f2937] pt-3 mt-1">This node establishes the initial cryptographic trust root. All subsequent package logs anchor validation back to this key.</div>
+          </div>
+        `;
+      } else {
+        const badge = node.identityBadge ? `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase">${node.identityBadge}</span>` : `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded border border-gray-600 bg-gray-800 text-gray-400 uppercase">Raw Push</span>`;
+        
+        inspector.innerHTML = `
+          <div class="flex flex-col gap-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-[9px] font-black tracking-widest text-gray-500 uppercase">Verification Level</span>
+                <div class="text-sm font-bold text-white mt-0.5">${node.name}</div>
+              </div>
+              ${badge}
+            </div>
+
+            <div class="border-t border-[#1f2937] pt-3">
+              <span class="text-[9px] font-black tracking-widest text-gray-500 uppercase">Client Spec Version</span>
+              <div class="text-xs font-bold text-gray-300 mt-0.5">${node.version || "1.0.0"}</div>
+            </div>
+
+            <div class="border-t border-[#1f2937] pt-3">
+              <span class="text-[9px] font-black tracking-widest text-gray-500 uppercase">Timestamp</span>
+              <div class="text-xs font-bold text-gray-300 mt-0.5">${new Date(node.timestamp).toLocaleString()}</div>
+            </div>
+
+            <div class="border-t border-[#1f2937] pt-3">
+              <span class="text-[9px] font-black tracking-widest text-gray-500 uppercase">Cryptographic Meta Hash</span>
+              <div class="text-[9px] font-mono text-[#10b981] mt-1 break-all bg-[#0b0f19] p-2.5 rounded border border-[#1f2937]">${node.meta_hash}</div>
+            </div>
+
+            <div class="border-t border-[#1f2937] pt-3">
+              <span class="text-[9px] font-black tracking-widest text-gray-500 uppercase">Payload Data Hash</span>
+              <div class="text-[9px] font-mono text-gray-400 mt-1 break-all bg-[#0b0f19] p-2.5 rounded border border-[#1f2937]">${node.data_hash}</div>
+            </div>
+
+            <div class="border-t border-[#1f2937] pt-3">
+              <span class="text-[9px] font-black tracking-widest text-gray-500 uppercase">Previous Link Reference</span>
+              <div class="text-[9px] font-mono text-gray-500 mt-1 break-all bg-[#0b0f19] p-2.5 rounded border border-[#1f2937]">${node.prev_meta_hash}</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+  });
+</script>

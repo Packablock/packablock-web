@@ -1,0 +1,33 @@
+<div class="w-full max-w-md mx-auto my-12 p-8 rounded-2xl border border-[#1f2937] bg-[#111827]/50 backdrop-blur-xl shadow-2xl flex flex-col gap-6">
+  <div class="text-center flex flex-col gap-2">
+    <h2 class="text-2xl font-black tracking-tight text-white">Administrator Access</h2>
+    <p class="text-sm text-gray-400">Authenticate session to manage cryptographic logs.</p>
+  </div>
+
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "flex flex-col gap-5" }) do |f| %>
+    <div class="flex flex-col gap-2">
+      <%= f.label :email, "Superuser E-mail Address", class: "text-xs font-semibold text-gray-400 uppercase tracking-wider" %>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "admin@packablock.com", class: "w-full bg-[#0b0f19] border border-[#1f2937] rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-[#10b981] transition-colors placeholder:text-gray-600" %>
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <%= f.label :password, "Security Access Token / Password", class: "text-xs font-semibold text-gray-400 uppercase tracking-wider" %>
+      <%= f.password_field :password, autocomplete: "current-password", placeholder: "••••••••", class: "w-full bg-[#0b0f19] border border-[#1f2937] rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-[#10b981] transition-colors placeholder:text-gray-600" %>
+    </div>
+
+    <% if devise_mapping.rememberable? %>
+      <div class="flex items-center gap-2">
+        <%= f.check_box :remember_me, class: "rounded border-[#1f2937] bg-[#0b0f19] text-[#10b981] focus:ring-0 focus:ring-offset-0" %>
+        <%= f.label :remember_me, "Keep admin session active", class: "text-xs font-medium text-gray-400 cursor-pointer select-none" %>
+      </div>
+    <% end %>
+
+    <%= f.submit "Authenticate Session", class: "w-full bg-[#10b981] text-black font-bold text-sm py-3.5 rounded-lg cursor-pointer hover:bg-[#10b981]/90 hover:shadow-lg hover:shadow-[#10b981]/15 transition-all uppercase tracking-wide mt-2" %>
+  <% end %>
+
+  <% if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+    <div class="text-center border-t border-[#1f2937] pt-4">
+      <%= link_to "Reset superuser credentials?", new_password_path(resource_name), class: "text-xs font-semibold text-[#8b5cf6] hover:underline" %>
+    </div>
+  <% end %>
+</div>
