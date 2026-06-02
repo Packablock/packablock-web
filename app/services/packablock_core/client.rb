@@ -37,17 +37,17 @@ module PackablockCore
     end
 
     def toggle_premium(repo_id)
-      response = @connection.post("/api/v1/internal/repo/#{repo_id}/toggle-premium")
+      response = @connection.post("/api/v1/internal/repo/#{repo_id}/toggle-premium", "{}")
       handle_response(response)
     end
 
     def revoke(repo_id)
-      response = @connection.post("/api/v1/internal/repo/#{repo_id}/revoke")
+      response = @connection.post("/api/v1/internal/repo/#{repo_id}/revoke", "{}")
       handle_response(response)
     end
 
     def purge_stale
-      response = @connection.post("/api/v1/internal/purge-stale")
+      response = @connection.post("/api/v1/internal/purge-stale", "{}")
       handle_response(response)
     end
 
