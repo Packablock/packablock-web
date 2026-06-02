@@ -18,7 +18,7 @@ RUN chmod +x /rails/bin/docker-entrypoint
 
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
-EXPOSE 3001
+EXPOSE 3002
 
-# Start server bound to all IPs on port 3001 so it is accessible outside container without conflicts
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3001"]
+# Start server bound to all IPs on port 3002 so it is accessible outside container without conflicts
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3002"]
