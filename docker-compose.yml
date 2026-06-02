@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+      network: host
     container_name: packablock-web
     network_mode: host
     environment:
