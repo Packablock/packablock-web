@@ -33,6 +33,25 @@ class RepositoriesController < ApplicationController
     end
   end
 
+  # GET /repositories/:id/candlesticks
+  def candlesticks
+    client = PackablockCore::Client.new
+    begin
+      repos_data = client.list_repos
+      all_repos = repos_data["repos"] || []
+      repo = all_repos.find { |r| r["id"] == params[:id].to_i }
+      if repo
+        yaml_content = client.fetch_candlesticks(owner: repo["owner"], repo: repo["repo"])
+        render plain: yaml_content, content_type: "application/yaml"
+      else
+        render json: { error: "Repository not found" }, status: :not_found
+      end
+    rescue => e
+      Rails.logger.error("Failed to proxy candlesticks data: #{e.message}")
+      render json: { error: "Failed to load candlesticks data from registry API" }, status: :bad_gateway
+    end
+  end
+
   # POST /repositories/:id/toggle_premium
   def toggle_premium
     client = PackablockCore::Client.new

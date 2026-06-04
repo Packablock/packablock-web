@@ -36,6 +36,15 @@ module PackablockCore
       handle_response(response)
     end
 
+    def fetch_candlesticks(owner:, repo:)
+      response = @connection.get("/api/v1/repo/#{owner}/#{repo}/candlesticks")
+      if response.success?
+        response.body
+      else
+        raise Error, "Registry API Error: #{response.status} - #{response.body}"
+      end
+    end
+
     def toggle_premium(repo_id)
       response = @connection.post("/api/v1/internal/repo/#{repo_id}/toggle-premium", "{}")
       handle_response(response)
