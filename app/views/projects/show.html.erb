@@ -174,7 +174,12 @@
       subContainer.appendChild(chartDiv);
       container.appendChild(subContainer);
 
-      renderSingleChart(chartDiv, groupData);
+      const actualPackages = groupData.filter(d => d.package);
+      if (actualPackages.length === 0) {
+        chartDiv.innerHTML = `<span class="text-xs text-gray-500 italic block pl-4 pb-2">No package constraints tracked in this manifest.</span>`;
+      } else {
+        renderSingleChart(chartDiv, actualPackages);
+      }
     });
   }
 
