@@ -63,8 +63,10 @@
               <p class="text-xs text-gray-400">Visualizes package constraints (wick), active version timeline (body), current pinned version (dot), and upstream release drift (line/endpoint).</p>
             </div>
             
-            <div id="candlestick-chart-<%= repo['id'] %>" data-url="<%= candlesticks_repository_path(repo['id']) %>" class="candlestick-chart w-full bg-[#0b0f19]/30 rounded-lg p-4 border border-[#1f2937]/50 min-h-[100px] flex items-center justify-center">
-              <span class="text-xs text-gray-500 italic">Loading candlesticks...</span>
+            <div id="candlestick-chart-<%= repo['id'] %>" data-url="<%= candlesticks_repository_path(repo['id']) %>" class="candlestick-chart w-full bg-[#0b0f19]/30 rounded-lg p-4 border border-[#1f2937]/50 min-h-[100px] flex flex-col gap-6 items-stretch">
+              <div class="flex items-center justify-center py-8 loader-placeholder">
+                <span class="text-xs text-gray-500 italic">Loading candlesticks...</span>
+              </div>
             </div>
           </div>
         <% end %>
@@ -129,9 +131,13 @@
   }
 
   function semverToNumber(ver) {
-    if (!ver || ver === "infinity") return null;
-    const clean = ver.replace(/[^0-9.]/g, "");
-    const parts = clean.split(".").map(x => parseInt(x, 10) || 0);
+    if (!ver || ver === "infinity") return 0;
+    const clean = ver.replace(/[^0-9.]/g, "").trim();
+    if (!clean) return 0;
+    const parts = clean.split(".").map(x => {
+      const p = parseInt(x, 10);
+      return isNaN(p) ? 0 : p;
+    });
     while (parts.length < 3) {
       parts.push(0);
     }
@@ -141,7 +147,7 @@
   function renderChart(container, data) {
     container.innerHTML = ""; // Clear loader
     if (!data || data.length === 0) {
-      container.innerHTML = `<span class="text-xs text-gray-500 italic">No package SemVer constraints found.</span>`;
+      container.innerHTML = `<div class="flex items-center justify-center py-8"><span class="text-xs text-gray-500 italic">No package SemVer constraints found.</span></div>`;
       return;
     }
 
@@ -175,7 +181,8 @@
   function renderSingleChart(container, data) {
     const rowHeight = 60;
     const margin = { top: 15, right: 80, bottom: 25, left: 160 };
-    const chartWidth = container.clientWidth || 600;
+    // Ensure chartWidth is always at least 600px
+    const chartWidth = Math.max(600, container.clientWidth || 600);
     const width = chartWidth - margin.left - margin.right;
     const height = data.length * rowHeight;
 
@@ -189,15 +196,15 @@
     data.forEach((d, idx) => {
       const y = idx * rowHeight + rowHeight / 2;
 
-      const minVal = semverToNumber(d.min_version);
-      const firstVal = semverToNumber(d.first_seen_version);
-      const pinnedVal = semverToNumber(d.current_pinned_version);
-      const latestVal = semverToNumber(d.latest_upstream_version);
+      const minVal = semverToNumber(d.min_version) || 0;
+      const firstVal = semverToNumber(d.first_seen_version) || minVal;
+      const pinnedVal = semverToNumber(d.current_pinned_version) || minVal;
+      const latestVal = semverToNumber(d.latest_upstream_version) || pinnedVal;
       const isInfinity = d.max_version === "infinity";
 
       let maxVal = isInfinity
         ? Math.max(latestVal, pinnedVal) + (Math.max(latestVal, pinnedVal) - minVal || 1000) * 1.5
-        : semverToNumber(d.max_version);
+        : (semverToNumber(d.max_version) || (Math.max(minVal, pinnedVal, latestVal) + 1000));
       if (maxVal <= minVal) maxVal = minVal + 1000;
 
       const xScale = d3.scaleLinear()
