@@ -207,8 +207,9 @@
         : (semverToNumber(d.max_version) || (Math.max(minVal, pinnedVal, latestVal) + 1000));
       if (maxVal <= minVal) maxVal = minVal + 1000;
 
+      const domainStart = Math.min(minVal, firstVal);
       const xScale = d3.scaleLinear()
-        .domain([minVal, maxVal])
+        .domain([domainStart, maxVal])
         .range([0, width]);
 
       const g = svg.append("g");
