@@ -186,16 +186,31 @@
       // Enable zoom and pan
       const zoomGroup = svg.append("g");
       const zoom = d3.zoom()
-        .scaleExtent([0.5, 2.5])
+        .scaleExtent([0.2, 2.5])
         .on("zoom", (event) => {
           zoomGroup.attr("transform", event.transform);
         });
       svg.call(zoom);
 
-      // Construct layout
-      const tree = d3.tree().size([innerHeight, innerWidth]);
       const rootNode = d3.hierarchy(rootData);
+      
+      // Calculate dynamic layout width based on chain depth to prevent horizontal squashing
+      const maxDepth = rootNode.height;
+      const dynamicWidth = Math.max(innerWidth, maxDepth * 110);
+
+      // Construct layout
+      const tree = d3.tree().size([innerHeight, dynamicWidth]);
       tree(rootNode);
+
+      // Distribute nodes vertically in an alternating wave pattern to prevent overlapping text/nodes
+      rootNode.descendants().forEach(d => {
+        if (d.data.type === "root") {
+          d.x = innerHeight / 2;
+        } else {
+          // Alternating offsets creates a beautiful bezier wave
+          d.x = innerHeight / 2 + (d.depth % 2 === 0 ? 50 : -50);
+        }
+      });
 
       // Center view horizontally initially
       svg.call(zoom.transform, d3.zoomIdentity.translate(margin.left, margin.top));
@@ -242,11 +257,14 @@
         .attr("r", 7.5)
         .attr("class", d => d.data.type === "root" ? "" : "transition-all hover:scale-125");
 
-      // Labels
+      // Labels positioned above or below the node to prevent horizontal overlap
       node.append("text")
-        .attr("dy", "0.31em")
-        .attr("x", d => d.children ? -12 : 12)
-        .attr("text-anchor", d => d.children ? "end" : "start")
+        .attr("dy", d => {
+          if (d.data.type === "root") return "-1.2em";
+          return d.depth % 2 === 0 ? "1.8em" : "-1.2em";
+        })
+        .attr("x", 0)
+        .attr("text-anchor", "middle")
         .text(d => d.data.name)
         .attr("fill", "#f3f4f6")
         .attr("font-size", "10px")
