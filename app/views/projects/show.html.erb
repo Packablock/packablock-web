@@ -229,7 +229,7 @@
         .attr("y", y + 4)
         .attr("text-anchor", "end")
         .attr("fill", "#ffffff")
-        .attr("font-size", "12px")
+        .attr("font-size", "13px")
         .attr("font-family", "monospace")
         .attr("font-weight", "bold")
         .text(d.package);
@@ -238,8 +238,8 @@
         .attr("x", -10)
         .attr("y", y + 16)
         .attr("text-anchor", "end")
-        .attr("fill", "#9ca3af")
-        .attr("font-size", "10px")
+        .attr("fill", "#cbd5e1")
+        .attr("font-size", "11px")
         .attr("font-family", "monospace")
         .text(`(${d.constraint})`);
 
@@ -275,8 +275,8 @@
         g.append("text")
           .attr("x", xMax + 10)
           .attr("y", y + 4)
-          .attr("fill", "#6b7280")
-          .attr("font-size", "12px")
+          .attr("fill", "#9ca3af")
+          .attr("font-size", "14px")
           .text("∞");
       }
 
@@ -312,17 +312,18 @@
         .attr("x", xPinned)
         .attr("y", y - 10)
         .attr("text-anchor", "middle")
-        .attr("fill", "#818cf8")
-        .attr("font-size", "9px")
+        .attr("fill", "#c7d2fe")
+        .attr("font-size", "11px")
         .attr("font-family", "monospace")
+        .attr("font-weight", "bold")
         .text(d.current_pinned_version);
 
       g.append("text")
         .attr("x", xMin)
         .attr("y", y + 18)
         .attr("text-anchor", "middle")
-        .attr("fill", "#6b7280")
-        .attr("font-size", "8px")
+        .attr("fill", "#cbd5e1")
+        .attr("font-size", "10px")
         .attr("font-family", "monospace")
         .text(d.min_version);
 
@@ -331,8 +332,8 @@
           .attr("x", xMax)
           .attr("y", y + 18)
           .attr("text-anchor", "middle")
-          .attr("fill", "#6b7280")
-          .attr("font-size", "8px")
+          .attr("fill", "#cbd5e1")
+          .attr("font-size", "10px")
           .attr("font-family", "monospace")
           .text(d.max_version);
       }
@@ -342,8 +343,8 @@
           .attr("x", xLatest)
           .attr("y", y + 18)
           .attr("text-anchor", "middle")
-          .attr("fill", "#f3f4f6")
-          .attr("font-size", "9px")
+          .attr("fill", "#ffffff")
+          .attr("font-size", "11px")
           .attr("font-weight", "bold")
           .attr("font-family", "monospace")
           .text(d.latest_upstream_version);
