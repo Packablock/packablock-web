@@ -191,6 +191,28 @@
     const width = chartWidth - margin.left - margin.right;
     const height = data.length * rowHeight;
 
+    let tooltip = d3.select("body").select(".candlestick-tooltip");
+    if (tooltip.empty()) {
+      tooltip = d3.select("body")
+        .append("div")
+        .attr("class", "candlestick-tooltip")
+        .style("position", "absolute")
+        .style("visibility", "hidden")
+        .style("background", "rgba(11, 15, 25, 0.95)")
+        .style("border", "1px solid rgba(255, 255, 255, 0.15)")
+        .style("padding", "14px 18px")
+        .style("border-radius", "8px")
+        .style("box-shadow", "0 10px 30px -5px rgba(0, 0, 0, 0.7), 0 8px 16px -8px rgba(0, 0, 0, 0.7)")
+        .style("color", "#cbd5e1")
+        .style("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace")
+        .style("font-size", "12px")
+        .style("pointer-events", "none")
+        .style("z-index", "9999")
+        .style("backdrop-filter", "blur(12px)")
+        .style("transition", "opacity 0.15s ease-out, transform 0.15s ease-out")
+        .style("opacity", "0");
+    }
+
     const svg = d3.select(container)
       .append("svg")
       .attr("width", chartWidth)
@@ -294,6 +316,41 @@
 
       const hasDrift = pinnedVal < latestVal;
       const bodyColor = hasDrift ? "#f59e0b" : "#10b981";
+      const driftColor = hasDrift ? "#f59e0b" : "#10b981";
+      const driftText = hasDrift ? "Drift Detected" : "Up to Date";
+
+      const tooltipHtml = `
+        <div style="font-weight: bold; font-size: 13px; color: #ffffff; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 6px; font-family: sans-serif;">
+          ${d.package} <span style="font-weight: normal; color: #9ca3af; font-size: 11px;">(${d.constraint})</span>
+        </div>
+        <table style="border-collapse: collapse; width: 100%; font-size: 11px; font-family: monospace;">
+          <tr>
+            <td style="color: #9ca3af; padding: 2px 8px 2px 0; text-align: left;">Pinned:</td>
+            <td style="color: #6366f1; font-weight: bold; padding: 2px 0;">${d.current_pinned_version || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="color: #9ca3af; padding: 2px 8px 2px 0; text-align: left;">First Seen:</td>
+            <td style="color: #e2e8f0; padding: 2px 0;">${d.first_seen_version || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="color: #9ca3af; padding: 2px 8px 2px 0; text-align: left;">Latest Upstream:</td>
+            <td style="color: #e2e8f0; padding: 2px 0;">${d.latest_upstream_version || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="color: #9ca3af; padding: 2px 8px 2px 0; text-align: left;">Allowed Range:</td>
+            <td style="color: #cbd5e1; padding: 2px 0;">${d.min_version || '0.0.0'} to ${d.max_version || '∞'}</td>
+          </tr>
+          <tr>
+            <td style="color: #9ca3af; padding: 6px 8px 2px 0; text-align: left;">Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="background-color: ${hasDrift ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${driftColor}; border: 1px solid ${driftColor}33; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px;">
+                <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background-color: ${driftColor};"></span>
+                ${driftText}
+              </span>
+            </td>
+          </tr>
+        </table>
+      `;
 
       g.append("rect")
         .attr("x", bodyMin)
@@ -302,7 +359,48 @@
         .attr("height", 10)
         .attr("fill", bodyColor)
         .attr("opacity", 0.4)
-        .attr("rx", 2);
+        .attr("rx", 2)
+        .style("cursor", "pointer")
+        .style("transition", "opacity 0.2s ease, stroke 0.2s ease")
+        .on("mouseover", function(event) {
+          d3.select(this)
+            .attr("opacity", 0.85)
+            .attr("stroke", "#ffffff")
+            .attr("stroke-width", 1);
+          
+          tooltip
+            .style("visibility", "visible")
+            .style("opacity", "1")
+            .style("transform", "translateY(0px)")
+            .html(tooltipHtml);
+        })
+        .on("mousemove", function(event) {
+          const tooltipWidth = 260;
+          const tooltipHeight = 150;
+          let left = event.pageX + 15;
+          let top = event.pageY - 10;
+          
+          if (left + tooltipWidth > window.innerWidth + window.scrollX) {
+            left = event.pageX - tooltipWidth - 15;
+          }
+          if (top + tooltipHeight > window.innerHeight + window.scrollY) {
+            top = event.pageY - tooltipHeight - 15;
+          }
+          
+          tooltip
+            .style("top", top + "px")
+            .style("left", left + "px");
+        })
+        .on("mouseleave", function() {
+          d3.select(this)
+            .attr("opacity", 0.4)
+            .attr("stroke", "none");
+          
+          tooltip
+            .style("visibility", "hidden")
+            .style("opacity", "0")
+            .style("transform", "translateY(10px)");
+        });
 
       const xPinned = xScale(pinnedVal);
       g.append("circle")
