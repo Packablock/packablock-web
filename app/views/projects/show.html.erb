@@ -145,6 +145,34 @@
       return;
     }
 
+    // Group packages by manifest
+    const groups = {};
+    data.forEach(d => {
+      const m = d.manifest || "package.json";
+      if (!groups[m]) groups[m] = [];
+      groups[m].push(d);
+    });
+
+    // Render a section for each manifest
+    Object.entries(groups).forEach(([manifestName, groupData]) => {
+      const subContainer = document.createElement("div");
+      subContainer.className = "mb-8 border-b border-[#1f2937]/30 pb-6 last:border-0 last:pb-0";
+
+      const title = document.createElement("h4");
+      title.className = "text-xs font-semibold text-gray-400 mb-4 font-mono bg-[#111827]/40 px-3 py-2 rounded-lg border border-[#1f2937]/50 inline-block";
+      title.innerText = `Manifest: ${manifestName}`;
+      subContainer.appendChild(title);
+
+      const chartDiv = document.createElement("div");
+      chartDiv.className = "w-full";
+      subContainer.appendChild(chartDiv);
+      container.appendChild(subContainer);
+
+      renderSingleChart(chartDiv, groupData);
+    });
+  }
+
+  function renderSingleChart(container, data) {
     const rowHeight = 60;
     const margin = { top: 15, right: 80, bottom: 25, left: 160 };
     const chartWidth = container.clientWidth || 600;
