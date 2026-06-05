@@ -740,11 +740,18 @@
           legend.style.boxSizing = "border-box";
           legend.style.scrollbarWidth = "none";
           legend.style.msOverflowStyle = "none";
+          
+          const renderedLabels = new Set();
           uniqueManifests.forEach(m => {
+            const colors = getManifestColors(m);
+            if (renderedLabels.has(colors.label)) {
+              return; // Avoid duplicate labels in the legend
+            }
+            renderedLabels.add(colors.label);
+
             const item = document.createElement("div");
             item.className = "flex items-center gap-1 flex-shrink-0";
             
-            const colors = getManifestColors(m);
             const indicator = document.createElement("span");
             indicator.style.width = "6px";
             indicator.style.height = "6px";
