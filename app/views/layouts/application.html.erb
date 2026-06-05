@@ -46,6 +46,64 @@
           <div class="h-4 w-px bg-slate-200"></div>
           
           <div class="flex items-center gap-2">
+            <!-- Notification Dropdown -->
+            <div class="relative flex items-center gap-1 mr-2" id="notification-dropdown-container">
+              <!-- Notification Trigger Button -->
+              <button id="notification-trigger" class="relative p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-all flex items-center justify-center focus:outline-none" aria-label="Notifications">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a9.049 9.049 0 0 1-5.12 0m-.075-12.648a3.001 3.001 0 1 1 5.96 0M12 18.75V16.5m-9-4.5h18M5.25 12h13.5A2.25 2.25 0 0 0 21 9.75V9A6 6 0 0 0 9 9v.75A2.25 2.25 0 0 0 11.25 12Z" />
+                </svg>
+                <% if notice.present? || alert.present? %>
+                  <span class="absolute top-1 right-1 flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+                  </span>
+                <% end %>
+              </button>
+
+              <!-- Expand Toggle Button -->
+              <button id="notification-expand-toggle" class="p-1 text-slate-400 hover:text-slate-600 rounded hover:bg-slate-100 transition-colors focus:outline-none" aria-label="Toggle notifications panel">
+                <svg class="w-3.5 h-3.5 transition-transform duration-200" id="notification-arrow-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+              
+              <!-- Redesigned Dropdown Notification Panel -->
+              <div id="notification-panel" class="hidden absolute right-0 top-full mt-3 w-80 rounded-xl border border-slate-200 bg-white/95 backdrop-blur-md p-4 shadow-xl ring-1 ring-black/5 z-50 transition-all duration-200 origin-top-right transform scale-95 opacity-0">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-3">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">System Alerts</span>
+                  <% if notice.present? || alert.present? %>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-50 border border-rose-100 text-rose-600 uppercase">Active</span>
+                  <% end %>
+                </div>
+                
+                <div class="flex flex-col gap-2.5 max-h-60 overflow-y-auto">
+                  <% if notice.present? %>
+                    <div class="p-3 rounded-lg bg-emerald-50/80 border border-emerald-100/50 text-emerald-800 text-xs font-medium flex gap-2.5 shadow-sm">
+                      <div class="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold text-[10px]">✓</div>
+                      <div class="flex-1 leading-normal"><%= notice %></div>
+                    </div>
+                  <% end %>
+                  
+                  <% if alert.present? %>
+                    <div class="p-3 rounded-lg bg-rose-50/80 border border-rose-100/50 text-rose-800 text-xs font-medium flex gap-2.5 shadow-sm">
+                      <div class="flex-shrink-0 w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center font-bold text-[10px]">!</div>
+                      <div class="flex-1 leading-normal"><%= alert %></div>
+                    </div>
+                  <% end %>
+                  
+                  <% if !notice.present? && !alert.present? %>
+                    <div class="py-6 text-center text-slate-400 flex flex-col items-center justify-center gap-2">
+                      <svg class="w-7 h-7 text-slate-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                      </svg>
+                      <span class="text-xs">No active alerts</span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
             <% if current_admin.superuser? %>
               <span class="text-xs font-semibold px-2 py-0.5 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase">Root Admin</span>
             <% else %>
@@ -55,21 +113,6 @@
           </div>
         </nav>
       </header>
-    <% end %>
-
-    <% if notice.present? || alert.present? %>
-      <div class="max-w-7xl mx-auto w-full px-6 mt-4">
-        <% if notice.present? %>
-          <div class="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center gap-2 shadow-sm">
-            <span class="text-lg">✓</span> <%= notice %>
-          </div>
-        <% end %>
-        <% if alert.present? %>
-          <div class="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-sm font-medium flex items-center gap-2 shadow-sm">
-            <span class="text-lg">⚠</span> <%= alert %>
-          </div>
-        <% end %>
-      </div>
     <% end %>
 
     <main class="flex-1 w-full max-w-7xl mx-auto px-6 py-8 flex flex-col gap-8">
@@ -82,5 +125,60 @@
         <span class="font-mono text-slate-600">Registry Web Platform v1.0.0</span>
       </div>
     </footer>
+
+    <% if admin_signed_in? %>
+      <script>
+        document.addEventListener("turbo:load", () => {
+          const trigger = document.getElementById("notification-trigger");
+          const toggleBtn = document.getElementById("notification-expand-toggle");
+          const panel = document.getElementById("notification-panel");
+          const arrow = document.getElementById("notification-arrow-icon");
+
+          if (!trigger || !panel) return;
+
+          function togglePanel() {
+            const isHidden = panel.classList.contains("hidden");
+            if (isHidden) {
+              panel.classList.remove("hidden");
+              setTimeout(() => {
+                panel.classList.remove("scale-95", "opacity-0");
+                panel.classList.add("scale-100", "opacity-100");
+              }, 10);
+              if (arrow) arrow.classList.add("rotate-180");
+            } else {
+              panel.classList.remove("scale-100", "opacity-100");
+              panel.classList.add("scale-95", "opacity-0");
+              if (arrow) arrow.classList.remove("rotate-180");
+              setTimeout(() => {
+                panel.classList.add("hidden");
+              }, 200);
+            }
+          }
+
+          trigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            togglePanel();
+          });
+
+          if (toggleBtn) {
+            toggleBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              togglePanel();
+            });
+          }
+
+          document.addEventListener("click", (e) => {
+            if (!panel.classList.contains("hidden") && !panel.contains(e.target) && e.target !== trigger && e.target !== toggleBtn) {
+              panel.classList.remove("scale-100", "opacity-100");
+              panel.classList.add("scale-95", "opacity-0");
+              if (arrow) arrow.classList.remove("rotate-180");
+              setTimeout(() => {
+                panel.classList.add("hidden");
+              }, 200);
+            }
+          });
+        });
+      </script>
+    <% end %>
   </body>
 </html>
