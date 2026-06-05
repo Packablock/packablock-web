@@ -677,18 +677,6 @@
 
       // 3. Render git history styled timeline column
       if (timeline) {
-        // Create standard sticky container for TIMELINE header and legend
-        const headerContainer = document.createElement("div");
-        headerContainer.className = "sticky top-0 z-10 flex flex-col bg-slate-100/80 backdrop-blur-sm border-b border-slate-200 w-full";
-        headerContainer.style.boxSizing = "border-box";
-
-        const tlHeader = document.createElement("div");
-        tlHeader.className = "text-[8px] font-bold font-mono text-center py-1.5 text-slate-500 uppercase select-none tracking-wider";
-        tlHeader.innerText = "TIMELINE";
-        headerContainer.appendChild(tlHeader);
-
-        timeline.appendChild(headerContainer);
-
         // Group blocks by day
         const blocksByDay = {};
         blocksOnly.forEach((node) => {
@@ -709,6 +697,23 @@
             getManifestsForNode(node).forEach(m => allManifestsSet.add(m));
           });
           const uniqueManifests = Array.from(allManifestsSet).sort();
+
+          // Dynamically adjust timeline container width based on number of manifests
+          const svgWidth = uniqueManifests.length * 16;
+          const neededWidth = 42 + 8 + 16 + svgWidth + 24; // dateLabel + gap + padding + svg + buffer
+          timeline.style.width = `${Math.max(140, neededWidth)}px`;
+
+          // Create standard sticky container for TIMELINE header and legend
+          const headerContainer = document.createElement("div");
+          headerContainer.className = "sticky top-0 z-10 flex flex-col bg-slate-100/80 backdrop-blur-sm border-b border-slate-200 w-full";
+          headerContainer.style.boxSizing = "border-box";
+
+          const tlHeader = document.createElement("div");
+          tlHeader.className = "text-[8px] font-bold font-mono text-center py-1.5 text-slate-500 uppercase select-none tracking-wider";
+          tlHeader.innerText = "TIMELINE";
+          headerContainer.appendChild(tlHeader);
+
+          timeline.appendChild(headerContainer);
 
           // Calculate manifest ranges
           const manifestRanges = {};
