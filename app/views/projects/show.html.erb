@@ -89,6 +89,33 @@
 
     <!-- Right: Linking Tool (1 Col wide) -->
     <div class="flex flex-col gap-6">
+      <!-- Register CLI Command Instruction Panel -->
+      <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Register New Repository</h2>
+          <p class="text-xs text-slate-500">
+            Run this CLI command to register a new repository on the trust network. Need the CLI?
+            <button id="open-install-modal" class="text-emerald-600 hover:text-emerald-700 hover:underline font-semibold cursor-pointer bg-transparent border-0 p-0 inline">Install pkablk</button>
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <div class="bg-slate-950 text-slate-100 font-mono text-xs p-3.5 rounded-lg border border-slate-800 flex justify-between items-center group relative">
+            <span class="truncate pr-4" id="pkablk-command-text">pkablk register &lt;owner/repo&gt;</span>
+            <button id="copy-pkablk-cmd" onclick="navigator.clipboard.writeText('pkablk register <owner/repo>').then(() => {
+              const originalContent = this.innerHTML;
+              this.innerHTML = '<span class=\'text-emerald-400 font-bold text-[10px] px-1.5 py-0.5 bg-emerald-950/80 border border-emerald-900/30 rounded flex items-center gap-1\'>✓ Copied</span>';
+              setTimeout(() => { this.innerHTML = originalContent; }, 2000);
+            })" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800 transition-colors cursor-pointer flex items-center justify-center flex-shrink-0" title="Copy to clipboard" aria-label="Copy command">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 8.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v8.25A2.25 2.25 0 0 0 6 16.5h2.25m7.5-7.5a2.25 2.25 0 0 1 2.25 2.25v8.25a2.25 2.25 0 0 1-2.25 2.25H11.25a2.25 2.25 0 0 1-2.25-2.25V11.25a2.25 2.25 0 0 1 2.25-2.25H15Z" />
+              </svg>
+            </button>
+          </div>
+          <span class="text-[10px] text-slate-400 italic">Replace &lt;owner/repo&gt; with your GitHub repository (e.g., Packablock/my-app).</span>
+        </div>
+      </div>
+
       <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
         <div>
           <h2 class="text-xl font-bold text-slate-900">Registry Linker Tool</h2>
@@ -110,6 +137,8 @@
     </div>
   </div>
 </div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>

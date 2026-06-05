@@ -12,130 +12,86 @@
       </div>
       <div>
         <div class="flex items-center gap-3">
-          <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Trust Registry Console</h1>
-          <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2 py-0.5 rounded border <%= @status_secured ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700' %> uppercase tracking-wider">
-            <span class="w-1.5 h-1.5 rounded-full <%= @status_secured ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse' %>"></span>
-            Registry <%= @status_secured ? 'Secured' : 'Offline' %>
-          </span>
+          <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Registry Dashboard</h1>
         </div>
         <p class="text-sm text-slate-500">Zero-trust supply chain audit logs & repository integrity checks.</p>
       </div>
     </div>
-    <div class="flex gap-3">
-      <%= button_to "GC Stale Signups", purge_stale_repositories_path, method: :post, class: "px-4 py-2 text-xs font-bold rounded-lg border border-rose-200 bg-rose-50 text-rose-600 cursor-pointer hover:bg-rose-600 hover:text-white transition-all uppercase tracking-wider" %>
-      <%= link_to "+ Create Project", new_project_path, class: "px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white cursor-pointer hover:bg-emerald-700 hover:shadow-md transition-all uppercase tracking-wider flex items-center" %>
-    </div>
+
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Left / Center: Projects Hub (2 Cols wide) -->
-    <div class="lg:col-span-2 flex flex-col gap-6">
-      <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
+  <div class="flex flex-col gap-6">
+    <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
+      <div class="flex justify-between items-center flex-wrap gap-4">
         <div>
           <h2 class="text-xl font-bold text-slate-900">Logical Project Containers</h2>
           <p class="text-xs text-slate-500">Purely visual environment groups stored in local Rails SQL database.</p>
         </div>
+        <%= link_to "+ Create Project", new_project_path, class: "px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white cursor-pointer hover:bg-emerald-700 hover:shadow-md transition-all uppercase tracking-wider flex items-center" %>
+      </div>
 
-        <% if @projects.empty? %>
-          <div class="p-8 text-center border border-dashed border-slate-200 rounded-xl flex flex-col gap-4">
-            <span class="text-2xl">📂</span>
-            <p class="text-sm text-slate-500">No projects mapped yet. Create one to organize repositories.</p>
-            <%= link_to "+ Create First Project", new_project_path, class: "mx-auto px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 transition-all" %>
+      <% if @projects.empty? %>
+        <div class="p-8 text-center border border-dashed border-slate-200 rounded-xl flex flex-col gap-4">
+          <span class="text-2xl">📂</span>
+          <p class="text-sm text-slate-500">No projects mapped yet. Create one to organize repositories.</p>
+          <%= link_to "+ Create First Project", new_project_path, class: "mx-auto px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 transition-all" %>
+        </div>
+      <% else %>
+        <div class="flex flex-col border border-slate-200 rounded-xl divide-y divide-slate-150 overflow-hidden bg-white">
+          <!-- Table Header -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-slate-50/75 px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <div class="md:col-span-4 flex items-center gap-2">Project Container</div>
+            <div class="md:col-span-6 flex items-center">Linked Repository Ledgers</div>
+            <div class="md:col-span-2 flex items-center md:justify-end">Actions</div>
           </div>
-        <% else %>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <% @projects.each do |project| %>
-              <div class="p-5 rounded-lg border border-slate-200 bg-slate-50/50 flex flex-col gap-4 hover:border-slate-400 transition-colors">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 class="font-bold text-slate-900 text-base"><%= project.name %></h3>
-                    <span class="text-[10px] text-slate-500 uppercase font-semibold">
-                      <%= project.project_repositories.count %> linked ledgers
-                    </span>
-                  </div>
-                  <div class="flex gap-2">
-                    <%= link_to "Manage", project_path(project), class: "text-xs font-bold text-emerald-600 hover:underline" %>
-                    <%= link_to "Edit", edit_project_path(project), class: "text-xs font-bold text-slate-400 hover:underline" %>
-                  </div>
-                </div>
 
-                <div class="flex flex-col gap-1 border-t border-slate-100 pt-3">
-                  <% linked_repos = @repositories.select { |r| project.project_repositories.pluck(:repo_id).include?(r["id"]) } %>
-                  <% if linked_repos.empty? %>
-                    <span class="text-xs text-slate-400 italic">No repositories linked.</span>
-                  <% else %>
-                    <% linked_repos.first(3).each do |repo| %>
-                      <div class="flex items-center justify-between text-xs">
-                        <%= link_to "#{repo['owner']}/#{repo['repo']}", repository_path(repo['id']), class: "text-slate-600 hover:text-slate-900 truncate font-medium hover:underline max-w-[180px]" %>
+          <% @projects.each do |project| %>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-4.5 items-center hover:bg-slate-50/40 transition-colors">
+              <!-- Project Info -->
+              <div class="md:col-span-4 flex items-start gap-3">
+                <div class="p-2 bg-slate-100 rounded-lg text-slate-600 border border-slate-200/60 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                  </svg>
+                </div>
+                <div class="min-w-0">
+                  <%= link_to project.name, project_path(project), class: "font-bold text-slate-900 hover:text-emerald-600 text-base transition-colors hover:underline block truncate" %>
+                  <span class="text-xs text-slate-400 font-semibold block mt-0.5">
+                    <%= project.project_repositories.count %> linked ledgers
+                  </span>
+                </div>
+              </div>
+
+              <!-- Linked Repositories -->
+              <div class="md:col-span-6">
+                <% linked_repos = @repositories.select { |r| project.project_repositories.pluck(:repo_id).include?(r["id"]) } %>
+                <% if linked_repos.empty? %>
+                  <span class="text-xs text-slate-400 italic">No repositories linked to this container.</span>
+                <% else %>
+                  <div class="flex flex-wrap gap-2">
+                    <% linked_repos.each do |repo| %>
+                      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50/50 max-w-full">
+                        <%= link_to "#{repo['owner']}/#{repo['repo']}", repository_path(repo['id']), class: "text-xs font-mono font-medium text-slate-600 hover:text-slate-900 truncate max-w-[160px] hover:underline" %>
                         <% if repo["is_premium"] == 1 %>
-                          <span class="text-[9px] px-1 py-0.2 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] font-bold uppercase">Prem</span>
+                          <span class="text-[8px] font-bold px-1 py-0.2 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase tracking-wider flex-shrink-0">Prem</span>
                         <% else %>
-                          <span class="text-[9px] px-1 py-0.2 rounded border border-slate-200 bg-slate-100 text-slate-700 font-bold uppercase">Std</span>
+                          <span class="text-[8px] font-bold px-1 py-0.2 rounded border border-slate-200 bg-slate-100 text-slate-500 uppercase tracking-wider flex-shrink-0">Std</span>
                         <% end %>
                       </div>
                     <% end %>
-                    <% if linked_repos.count > 3 %>
-                      <span class="text-[10px] text-slate-400 font-bold italic pt-1">
-                        + <%= linked_repos.count - 3 %> more...
-                      </span>
-                    <% end %>
-                  <% end %>
-                </div>
+                  </div>
+                <% end %>
               </div>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-    </div>
 
-    <!-- Right: Global Repository Ledgers (1 Col wide) -->
-    <div class="flex flex-col gap-6">
-      <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
-        <div>
-          <h2 class="text-xl font-bold text-slate-900">Registered Ledgers</h2>
-          <p class="text-xs text-slate-500">Real-time status of all active package registers.</p>
+              <!-- Actions -->
+              <div class="md:col-span-2 flex items-center md:justify-end gap-3">
+                <%= link_to "Manage", project_path(project), class: "px-3 py-1.5 text-xs font-bold rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all uppercase tracking-wider text-center min-w-[76px]" %>
+                <%= link_to "Edit", edit_project_path(project), class: "px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all uppercase tracking-wider text-center min-w-[64px]" %>
+              </div>
+            </div>
+          <% end %>
         </div>
-
-        <% if @repositories.empty? %>
-          <p class="text-sm text-slate-500 italic py-4">No active package registries found.</p>
-        <% else %>
-          <div class="flex flex-col gap-3">
-            <% @repositories.each do |repo| %>
-              <div class="p-4 rounded-lg border border-slate-200 bg-slate-50/50 flex flex-col gap-3">
-                <div class="flex justify-between items-start gap-2">
-                  <div class="truncate">
-                    <%= link_to "#{repo['owner']}/#{repo['repo']}", repository_path(repo['id']), class: "font-bold text-xs text-slate-700 hover:text-slate-900 truncate font-mono hover:underline block max-w-[180px]" %>
-                    <span class="text-[9px] text-slate-400 font-bold">挑戰 ID: <%= repo["id"] %></span>
-                  </div>
-                  <div>
-                    <% if repo["is_premium"] == 1 %>
-                      <span class="text-[8px] font-black tracking-wide px-1.5 py-0.5 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase">PREMIUM</span>
-                    <% else %>
-                      <span class="text-[8px] font-black tracking-wide px-1.5 py-0.5 rounded border border-slate-200 bg-slate-100 text-slate-700 uppercase">STANDARD</span>
-                    <% end %>
-                  </div>
-                </div>
-
-                <div class="flex justify-between items-center text-[10px] border-t border-slate-100 pt-2 mt-1">
-                  <div class="flex items-center gap-1.5">
-                    <% if repo["registration_token"].start_with?("pb_revoked_") %>
-                      <span class="w-1.5 h-1.5 rounded-full bg-rose-500 inline-block"></span>
-                      <span class="text-rose-600 font-bold">REVOKED</span>
-                    <% else %>
-                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                      <span class="text-slate-500 font-mono text-[9px]">pb_reg_...<%= repo["registration_token"][-6..-1] if repo["registration_token"] %></span>
-                    <% end %>
-                  </div>
-                  <div class="flex gap-2.5">
-                    <%= button_to "Revoke", revoke_repository_path(repo["id"]), method: :post, data: { confirm: "Are you sure you want to permanently revoke this repository token?" }, class: "text-[9px] font-bold text-rose-600 hover:underline bg-transparent border-0 cursor-pointer p-0" unless repo["registration_token"].start_with?("pb_revoked_") %>
-                    <%= button_to "Toggle Premium", toggle_premium_repository_path(repo["id"]), method: :post, class: "text-[9px] font-bold text-violet-600 hover:underline bg-transparent border-0 cursor-pointer p-0" %>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
+      <% end %>
     </div>
   </div>
 </div>
