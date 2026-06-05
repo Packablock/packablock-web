@@ -666,6 +666,19 @@
                   card.style.outline = "none";
                 }, 1500);
               }
+
+              // Scroll and center the corresponding timeline date row
+              const dateStr = new Date(node.timestamp).toISOString().slice(0, 10);
+              const tlRow = document.getElementById(`timeline-row-${dateStr}`);
+              if (tlRow) {
+                tlRow.scrollIntoView({ behavior: 'auto', block: 'center' });
+                
+                // Highlight the timeline row
+                tlRow.classList.add("bg-indigo-50/80");
+                setTimeout(() => {
+                  tlRow.classList.remove("bg-indigo-50/80");
+                }, 1500);
+              }
             });
 
             epochCol.appendChild(slice);
@@ -773,6 +786,7 @@
             const blocksOnDay = blocksByDay[dayStr];
             
             const row = document.createElement("div");
+            row.id = `timeline-row-${dayStr}`;
             row.className = "flex items-center hover:bg-slate-50/50 px-2 py-1 gap-2 border-b border-slate-100/50 transition-colors";
             row.style.height = "36px";
             row.style.boxSizing = "border-box";
