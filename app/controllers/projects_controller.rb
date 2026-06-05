@@ -14,7 +14,7 @@ class ProjectsController < ApplicationController
       if current_admin.superuser?
         @all_repositories = all_repos
       else
-        org_name = current_admin.email.split('@').last.split('.').first
+        org_name = current_admin.email.split("@").last.split(".").first
         @all_repositories = all_repos.select { |r| r["owner"] == org_name }
       end
     rescue => e

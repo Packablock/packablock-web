@@ -21,7 +21,7 @@ class DashboardController < ApplicationController
       if current_admin.superuser?
         @repositories = all_repos
       else
-        org_name = current_admin.email.split('@').last.split('.').first
+        org_name = current_admin.email.split("@").last.split(".").first
         @repositories = all_repos.select { |r| r["owner"] == org_name }
       end
     rescue => e
