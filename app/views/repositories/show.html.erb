@@ -713,7 +713,7 @@
 
           // Dynamically adjust timeline container width based on number of manifests
           const svgWidth = uniqueManifests.length * 16;
-          const neededWidth = 42 + 8 + 16 + svgWidth + 24; // dateLabel + gap + padding + svg + buffer
+          const neededWidth = 48 + 8 + 16 + svgWidth + 24; // dateLabel + gap + padding + svg + buffer
           timeline.style.width = `${Math.max(140, neededWidth)}px`;
 
           // Create standard sticky container for TIMELINE header and legend
@@ -800,9 +800,10 @@
             } catch(e) {}
 
             const dateDiv = document.createElement("div");
-            dateDiv.style.width = "42px";
+            dateDiv.style.width = "48px";
             dateDiv.style.textAlign = "right";
-            dateDiv.style.fontSize = "8px";
+            dateDiv.style.fontSize = "12px";
+            dateDiv.style.lineHeight = "1";
             dateDiv.style.fontWeight = "bold";
             dateDiv.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
             dateDiv.style.color = "#64748b";
