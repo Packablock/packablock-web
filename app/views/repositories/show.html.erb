@@ -1,10 +1,12 @@
 <style>
   #chain-minimap::-webkit-scrollbar,
-  #chain-minimap > div::-webkit-scrollbar {
+  #chain-minimap > div::-webkit-scrollbar,
+  #chain-timeline::-webkit-scrollbar {
     display: none;
   }
   #chain-minimap,
-  #chain-minimap > div {
+  #chain-minimap > div,
+  #chain-timeline {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
@@ -153,6 +155,10 @@
         <!-- Scrollable Ledger Content -->
         <div class="flex-1 overflow-y-auto bg-slate-50/50 p-6 font-mono text-xs text-slate-800 leading-relaxed shadow-inner" id="yaml-list-content">
           <div class="text-center py-12 text-xs text-slate-400 italic">Loading ledger blocks...</div>
+        </div>
+        <!-- Git History Styled Timeline Container -->
+        <div id="chain-timeline" class="border-l border-slate-200 bg-slate-50/10 flex flex-col select-none relative overflow-y-auto flex-shrink-0" style="scrollbar-width: none; -ms-overflow-style: none; width: 140px;">
+          <!-- Timeline will be injected here -->
         </div>
         <!-- Chain Minimap Container -->
         <div id="chain-minimap" class="border-l border-slate-200 bg-slate-50/30 flex flex-row select-none relative overflow-x-auto overflow-y-hidden flex-shrink-0" style="scrollbar-width: none; -ms-overflow-style: none;">
@@ -408,6 +414,33 @@
         return;
       }
 
+      // Helper to extract manifests from a node payload
+      function getManifestsForNode(node) {
+        let manifests = [];
+        try {
+          const parsedData = jsyaml.load(node.data_payload);
+          if (parsedData && typeof parsedData === "object") {
+            const systemKeys = [
+              "chain_event", "genesis_rollover", "genesis_key", 
+              "rollover_reason", "rollover_authority", "previous_epoch", 
+              "lockfiles", "step"
+            ];
+            const rootKeys = Object.keys(parsedData).filter(k => !systemKeys.includes(k));
+            
+            const lockfilesKeys = [];
+            if (parsedData.lockfiles && typeof parsedData.lockfiles === "object") {
+              lockfilesKeys.push(...Object.keys(parsedData.lockfiles));
+            }
+
+            manifests = [...new Set([...rootKeys, ...lockfilesKeys])];
+          }
+        } catch(e) {}
+        if (manifests.length === 0) {
+          manifests = ["other"];
+        }
+        return manifests;
+      }
+
       // Calculate min and max line counts for >0 counts
       let maxLines = 0;
       let minLines = Infinity;
@@ -487,6 +520,11 @@
         minimap.innerHTML = "";
       }
 
+      const timeline = document.getElementById("chain-timeline");
+      if (timeline) {
+        timeline.innerHTML = "";
+      }
+
       // 1. Render all block cards in the main container
       blocksOnly.forEach((node) => {
         const item = document.createElement("div");
@@ -551,33 +589,9 @@
             const lines = (node.data_payload || "").split("\n");
             const lineCount = lines.length;
 
-            let manifest = "other";
-            let manifestCount = 0;
-            try {
-              const parsedData = jsyaml.load(node.data_payload);
-              if (parsedData && typeof parsedData === "object") {
-                const systemKeys = [
-                  "chain_event", "genesis_rollover", "genesis_key", 
-                  "rollover_reason", "rollover_authority", "previous_epoch", 
-                  "lockfiles", "step"
-                ];
-                const rootKeys = Object.keys(parsedData).filter(k => !systemKeys.includes(k));
-                
-                const lockfilesKeys = [];
-                if (parsedData.lockfiles && typeof parsedData.lockfiles === "object") {
-                  lockfilesKeys.push(...Object.keys(parsedData.lockfiles));
-                }
-
-                const allKeys = [...new Set([...rootKeys, ...lockfilesKeys])];
-                manifestCount = allKeys.length;
-                if (allKeys.length > 0) {
-                  // Prefer showing a lockfile/manifest over other files as the primary tag
-                  const primary = allKeys.find(k => k.endsWith(".json") || k.endsWith(".lockb") || k.endsWith(".yaml") || k.endsWith(".toml")) || allKeys[0];
-                  manifest = primary;
-                }
-              }
-            } catch(e) {}
-
+            const manifests = getManifestsForNode(node);
+            const manifestCount = (manifests.length === 1 && manifests[0] === "other") ? 0 : manifests.length;
+            const manifest = manifests.find(k => k.endsWith(".json") || k.endsWith(".lockb") || k.endsWith(".yaml") || k.endsWith(".toml")) || manifests[0];
             const colors = getManifestColors(manifest);
             
             const slice = document.createElement("div");
@@ -659,6 +673,190 @@
 
           minimap.appendChild(epochCol);
         });
+      }
+
+      // 3. Render git history styled timeline column
+      if (timeline) {
+        // Create standard TIMELINE header
+        const tlHeader = document.createElement("div");
+        tlHeader.className = "bg-slate-100/80 backdrop-blur-sm border-b border-slate-200 text-[8px] font-bold font-mono text-center py-1.5 text-slate-500 uppercase select-none sticky top-0 z-10 tracking-wider";
+        tlHeader.innerText = "TIMELINE";
+        timeline.appendChild(tlHeader);
+
+        // Group blocks by day
+        const blocksByDay = {};
+        blocksOnly.forEach((node) => {
+          const dateStr = new Date(node.timestamp).toISOString().slice(0, 10);
+          if (!blocksByDay[dateStr]) {
+            blocksByDay[dateStr] = [];
+          }
+          blocksByDay[dateStr].push(node);
+        });
+
+        // Sorted list of days
+        const daysList = Object.keys(blocksByDay).sort();
+
+        if (daysList.length > 0) {
+          // Identify all unique manifests
+          const allManifestsSet = new Set();
+          blocksOnly.forEach(node => {
+            getManifestsForNode(node).forEach(m => allManifestsSet.add(m));
+          });
+          const uniqueManifests = Array.from(allManifestsSet).sort();
+
+          // Calculate manifest ranges
+          const manifestRanges = {};
+          uniqueManifests.forEach(m => {
+            manifestRanges[m] = { first: -1, last: -1 };
+          });
+          uniqueManifests.forEach(m => {
+            let first = -1;
+            let last = -1;
+            daysList.forEach((dayStr, idx) => {
+              const blocks = blocksByDay[dayStr];
+              const hasManifest = blocks.some(node => getManifestsForNode(node).includes(m));
+              if (hasManifest) {
+                if (first === -1) first = idx;
+                last = idx;
+              }
+            });
+            manifestRanges[m] = { first, last };
+          });
+
+          // Render legend in header
+          const legend = document.createElement("div");
+          legend.className = "flex flex-row items-center justify-start gap-2 py-1.5 px-2 bg-slate-100/30 border-b border-slate-100 text-[8px] font-mono text-slate-500 overflow-x-auto select-none flex-wrap";
+          legend.style.scrollbarWidth = "none";
+          legend.style.msOverflowStyle = "none";
+          uniqueManifests.forEach(m => {
+            const item = document.createElement("div");
+            item.className = "flex items-center gap-1 flex-shrink-0";
+            
+            const colors = getManifestColors(m);
+            const indicator = document.createElement("span");
+            indicator.style.width = "6px";
+            indicator.style.height = "6px";
+            indicator.style.borderRadius = "50%";
+            indicator.style.backgroundColor = colors.dot;
+            indicator.style.display = "inline-block";
+            
+            const label = document.createElement("span");
+            label.innerText = colors.label;
+            
+            item.appendChild(indicator);
+            item.appendChild(label);
+            legend.appendChild(item);
+          });
+          timeline.appendChild(legend);
+
+          // Render each day row
+          daysList.forEach((dayStr, dayIdx) => {
+            const blocksOnDay = blocksByDay[dayStr];
+            
+            const row = document.createElement("div");
+            row.className = "flex items-center hover:bg-slate-50/50 px-2 py-1 gap-2 border-b border-slate-100/50 transition-colors";
+            row.style.height = "36px";
+            row.style.boxSizing = "border-box";
+
+            // Format date label (e.g. "Jun 5")
+            let dateLabel = dayStr;
+            try {
+              const dateObj = new Date(dayStr + "T00:00:00");
+              const options = { month: 'short', day: 'numeric' };
+              dateLabel = dateObj.toLocaleDateString('en-US', options);
+            } catch(e) {}
+
+            const dateDiv = document.createElement("div");
+            dateDiv.style.width = "42px";
+            dateDiv.style.textAlign = "right";
+            dateDiv.style.fontSize = "8px";
+            dateDiv.style.fontWeight = "bold";
+            dateDiv.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+            dateDiv.style.color = "#64748b";
+            dateDiv.style.userSelect = "none";
+            dateDiv.style.flexShrink = "0";
+            dateDiv.innerText = dateLabel;
+            row.appendChild(dateDiv);
+
+            // SVG Container for Git history-like lines and dots
+            const svgWidth = uniqueManifests.length * 16;
+            const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            svg.setAttribute("width", svgWidth);
+            svg.setAttribute("height", "36");
+            svg.style.flexShrink = "0";
+
+            uniqueManifests.forEach((m, mIdx) => {
+              const x = mIdx * 16 + 8;
+              const range = manifestRanges[m];
+              const hasLine = range.first !== -1 && dayIdx >= range.first && dayIdx <= range.last;
+              const hasDot = blocksOnDay.some(node => getManifestsForNode(node).includes(m));
+              const colors = getManifestColors(m);
+
+              if (hasLine) {
+                let y1 = 0;
+                let y2 = 36;
+                if (dayIdx === range.first) {
+                  y1 = 18; // Start at center
+                }
+                if (dayIdx === range.last) {
+                  y2 = 18; // End at center
+                }
+
+                if (range.first === range.last) {
+                  // Only 1 day, no vertical line, just the dot
+                } else {
+                  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                  line.setAttribute("x1", x);
+                  line.setAttribute("y1", y1);
+                  line.setAttribute("x2", x);
+                  line.setAttribute("y2", y2);
+                  line.setAttribute("stroke", colors.border);
+                  line.setAttribute("stroke-width", "2");
+                  line.setAttribute("stroke-linecap", "round");
+                  svg.appendChild(line);
+                }
+              }
+
+              if (hasDot) {
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", x);
+                circle.setAttribute("cy", "18");
+                circle.setAttribute("r", "4");
+                circle.setAttribute("fill", colors.dot);
+                circle.setAttribute("stroke", "#ffffff");
+                circle.setAttribute("stroke-width", "1.5");
+                
+                const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+                const count = blocksOnDay.filter(node => getManifestsForNode(node).includes(m)).length;
+                title.textContent = `${m}\nDate: ${dayStr}\nCommits: ${count}`;
+                circle.appendChild(title);
+                
+                circle.style.cursor = "pointer";
+                circle.addEventListener("click", () => {
+                  const firstBlock = blocksOnDay.find(node => getManifestsForNode(node).includes(m));
+                  if (firstBlock) {
+                    const card = document.getElementById(`block-card-${firstBlock.epoch_index}-${firstBlock.block_index}`);
+                    if (card) {
+                      card.scrollIntoView({ behavior: 'auto', block: 'start' });
+                      card.classList.add("bg-indigo-50/50");
+                      card.style.outline = "2px solid #4f46e5";
+                      card.style.outlineOffset = "2px";
+                      setTimeout(() => {
+                        card.classList.remove("bg-indigo-50/50");
+                        card.style.outline = "none";
+                      }, 1500);
+                    }
+                  }
+                });
+
+                svg.appendChild(circle);
+              }
+            });
+
+            row.appendChild(svg);
+            timeline.appendChild(row);
+          });
+        }
       }
     }
 
