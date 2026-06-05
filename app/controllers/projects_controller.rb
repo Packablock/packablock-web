@@ -3,14 +3,20 @@ class ProjectsController < ApplicationController
   before_action :set_project, only: [ :show, :edit, :update, :destroy, :link_repository, :unlink_repository ]
 
   def index
-    @projects = Project.includes(:project_repositories).all
+    @projects = current_admin.superuser? ? Project.includes(:project_repositories).all : current_admin.projects.includes(:project_repositories)
   end
 
   def show
     client = PackablockCore::Client.new
     begin
       repos_data = client.list_repos
-      @all_repositories = repos_data["repos"] || []
+      all_repos = repos_data["repos"] || []
+      if current_admin.superuser?
+        @all_repositories = all_repos
+      else
+        org_name = current_admin.email.split('@').last.split('.').first
+        @all_repositories = all_repos.select { |r| r["owner"] == org_name }
+      end
     rescue => e
       Rails.logger.error("Failed to fetch all repositories in show project: #{e.message}")
       @all_repositories = []
@@ -23,14 +29,14 @@ class ProjectsController < ApplicationController
   end
 
   def new
-    @project = Project.new
+    @project = current_admin.projects.new
   end
 
   def edit
   end
 
   def create
-    @project = Project.new(project_params)
+    @project = current_admin.projects.new(project_params)
     if @project.save
       redirect_to dashboard_path, notice: "Project '#{@project.name}' successfully created."
     else
@@ -74,7 +80,11 @@ class ProjectsController < ApplicationController
   private
 
   def set_project
-    @project = Project.find(params[:id])
+    if current_admin.superuser?
+      @project = Project.find(params[:id])
+    else
+      @project = current_admin.projects.find(params[:id])
+    end
   end
 
   def project_params

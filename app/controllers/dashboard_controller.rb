@@ -17,14 +17,20 @@ class DashboardController < ApplicationController
     # Fetch registered repositories
     begin
       repos_data = client.list_repos
-      @repositories = repos_data["repos"] || []
+      all_repos = repos_data["repos"] || []
+      if current_admin.superuser?
+        @repositories = all_repos
+      else
+        org_name = current_admin.email.split('@').last.split('.').first
+        @repositories = all_repos.select { |r| r["owner"] == org_name }
+      end
     rescue => e
       Rails.logger.error("Failed to fetch registered repositories: #{e.message}")
       @repositories = []
     end
 
-    # Fetch local projects
-    @projects = Project.includes(:project_repositories).all
+    # Fetch local projects scoped to the current admin
+    @projects = current_admin.superuser? ? Project.includes(:project_repositories).all : current_admin.projects.includes(:project_repositories)
 
     # Mock server resource metrics for visual premium dashboard feeling
     @metrics = {

@@ -1,5 +1,7 @@
 class RepositoriesController < ApplicationController
   before_action :authenticate_admin!
+  before_action :authorize_repository_access!, only: [:show, :tree, :candlesticks, :toggle_premium, :revoke]
+  before_action :authorize_superuser!, only: [:purge_stale]
 
   def show
     client = PackablockCore::Client.new
@@ -83,6 +85,38 @@ class RepositoriesController < ApplicationController
       redirect_back fallback_location: dashboard_path, notice: "Garbage collection completed. Purged #{purged_count} stale unverified premium records."
     rescue => e
       redirect_back fallback_location: dashboard_path, alert: "Failed to run garbage collection: #{e.message}"
+    end
+  end
+
+  private
+
+  def authorize_repository_access!
+    return if current_admin.superuser?
+
+    client = PackablockCore::Client.new
+    begin
+      repos_data = client.list_repos
+      all_repos = repos_data["repos"] || []
+      repo = all_repos.find { |r| r["id"] == params[:id].to_i }
+      
+      if repo.nil?
+        redirect_to dashboard_path, alert: "Repository not found."
+        return
+      end
+
+      org_name = current_admin.email.split('@').last.split('.').first
+      unless repo["owner"] == org_name
+        redirect_to dashboard_path, alert: "Access denied: Repository belongs to a different organization."
+      end
+    rescue => e
+      Rails.logger.error("Failed to authorize repository access: #{e.message}")
+      redirect_to dashboard_path, alert: "Access authorization failed."
+    end
+  end
+
+  def authorize_superuser!
+    unless current_admin.superuser?
+      redirect_to dashboard_path, alert: "Access denied: Root Admin permissions required."
     end
   end
 end

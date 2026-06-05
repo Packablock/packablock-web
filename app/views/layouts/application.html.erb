@@ -42,7 +42,11 @@
           <div class="h-4 w-px bg-slate-200"></div>
           
           <div class="flex items-center gap-2">
-            <span class="text-xs font-semibold px-2 py-0.5 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase">Root Admin</span>
+            <% if current_admin.superuser? %>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase">Root Admin</span>
+            <% else %>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded border border-slate-200 bg-slate-100 text-slate-700 uppercase"><%= current_admin.email.split('@').last.split('.').first.capitalize %> Org</span>
+            <% end %>
             <%= button_to "Sign Out", destroy_admin_session_path, method: :delete, class: "text-xs font-semibold text-[#ef4444] hover:underline bg-transparent border-0 cursor-pointer" %>
           </div>
         </nav>
