@@ -16,83 +16,94 @@
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <!-- Left: Linked Repositories (2 Cols wide) -->
-    <div class="lg:col-span-2 flex flex-col gap-6">
-      <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
-        <div>
-          <h2 class="text-xl font-bold text-slate-900">Linked Registries</h2>
-          <p class="text-xs text-slate-500">Repositories associated with this environment container.</p>
+  <!-- Repositories panel card (full width) -->
+  <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
+    <div>
+      <h2 class="text-xl font-bold text-slate-900">Repositories</h2>
+      <p class="text-xs text-slate-500">Repositories associated with this environment container.</p>
+    </div>
+
+    <% if @linked_repositories.empty? %>
+      <div class="p-8 text-center border border-dashed border-slate-200 rounded-xl flex flex-col gap-3">
+        <span class="text-xl">🔗</span>
+        <p class="text-sm text-slate-500">No repositories linked to this project container yet.</p>
+      </div>
+    <% else %>
+      <div class="flex flex-col border border-slate-200 rounded-xl divide-y divide-slate-150 overflow-hidden bg-white">
+        <!-- Table Header -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-slate-50/75 px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+          <div class="md:col-span-4 flex items-center">Repository</div>
+          <div class="md:col-span-2 flex items-center">Verification</div>
+          <div class="md:col-span-2 flex items-center">Trust Anchor</div>
+          <div class="md:col-span-2 flex items-center">Registered On</div>
+          <div class="md:col-span-2 flex items-center md:justify-end">Actions</div>
         </div>
 
-        <% if @linked_repositories.empty? %>
-          <div class="p-8 text-center border border-dashed border-slate-200 rounded-xl flex flex-col gap-3">
-            <span class="text-xl">🔗</span>
-            <p class="text-sm text-slate-500">No repositories linked to this project container yet.</p>
-          </div>
-        <% else %>
-          <div class="flex flex-col gap-4">
-            <% @linked_repositories.each do |repo| %>
-              <div class="p-5 rounded-lg border border-slate-200 bg-slate-50/50 flex justify-between items-center gap-4 hover:border-slate-400 transition-all">
-                <div>
-                  <%= link_to "#{repo['owner']}/#{repo['repo']}", repository_path(repo['id']), class: "font-mono font-bold text-sm text-emerald-600 hover:text-emerald-700 hover:underline" %>
-                  <div class="text-[10px] text-slate-500 font-semibold mt-1 flex items-center gap-2">
-                    <span>ID: <%= repo["id"] %></span>
-                    <span>•</span>
-                    <% if repo["is_premium"] == 1 %>
-                      <span class="text-violet-600 font-bold">PREMIUM TIER</span>
-                    <% else %>
-                      <span class="text-slate-500">STANDARD TIER</span>
-                    <% end %>
-                  </div>
-                </div>
-                
-                <%= button_to "Unlink Repository", unlink_repository_project_path(@project, repo_id: repo["id"]), method: :delete, class: "px-3 py-1.5 text-[10px] font-bold rounded border border-rose-200 bg-rose-50 text-rose-600 cursor-pointer hover:bg-rose-600 hover:text-white transition-all uppercase tracking-wider" %>
-              </div>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-
-      <!-- Candlestick Charts Section -->
-      <% unless @linked_repositories.empty? %>
         <% @linked_repositories.each do |repo| %>
-          <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-4 mt-6">
-            <div class="flex justify-between items-start flex-wrap gap-4">
-              <div>
-                <h3 class="text-lg font-bold text-slate-900">SemVer Candlestick Timelines: <%= repo['owner'] %>/<%= repo['repo'] %></h3>
-                <p class="text-xs text-slate-500">Visualizes package constraints (wick), active version timeline (body), current pinned version (dot), and upstream release drift (line/endpoint).</p>
-              </div>
-              <% if repo['is_premium'] != 1 %>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded border border-violet-200 bg-violet-50 text-violet-700 uppercase">Standard Tier</span>
+          <div id="repo-row-<%= repo['id'] %>" class="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-slate-50/40 transition-all">
+            <!-- Repository Info -->
+            <div class="md:col-span-4 flex items-center min-w-0">
+              <%= link_to "#{repo['owner']}/#{repo['repo']}", repository_path(repo['id']), class: "font-mono font-bold text-sm text-emerald-600 hover:text-emerald-700 hover:underline truncate" %>
+            </div>
+
+            <!-- Verification Status -->
+            <div id="verification-status-<%= repo['id'] %>" class="md:col-span-2 flex items-center">
+              <% status = repo['verification_status'] || 'none' %>
+              <% if status == 'verified' %>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 bg-emerald-50 text-emerald-700 uppercase tracking-wider">Verified</span>
+              <% elsif status == 'pending' %>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700 uppercase tracking-wider">Pending</span>
               <% else %>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-700 uppercase">Premium Tier</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500 uppercase tracking-wider">None</span>
               <% end %>
             </div>
 
-            <% if repo['is_premium'] != 1 %>
-              <div class="p-3.5 rounded-lg border border-violet-200 bg-violet-50/50 text-xs text-violet-700 flex items-center gap-2">
-                <span class="text-base">💡</span>
-                <span><strong>Hosted Registry Customers Only:</strong> Upstream release monitoring and drift warning alerts are restricted to premium accounts. Upgrade this repository to Premium to enable real-time SemVer drift detection.</span>
-              </div>
-            <% end %>
-            
-            <div id="candlestick-chart-<%= repo['id'] %>" data-url="<%= candlesticks_repository_path(repo['id']) %>" data-premium="<%= repo['is_premium'] == 1 %>" class="candlestick-chart w-full bg-slate-50/30 rounded-lg p-4 border border-slate-200 min-h-[100px] flex flex-col gap-6 items-stretch">
-              <div class="flex items-center justify-center py-8 loader-placeholder">
-                <span class="text-xs text-slate-400 italic">Loading candlesticks...</span>
-              </div>
+            <!-- Trust Anchor -->
+            <div class="md:col-span-2 flex items-center">
+              <% if repo['pinned_public_key'].present? %>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 uppercase tracking-wider flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944a11.954 11.954 0 007.834 3.056 1.008 1.008 0 01.766.97c0 4.675-2.029 8.878-5.253 11.666a1.001 1.001 0 01-1.347 0C9.03 14.853 7 10.65 7 5.97c0-.422.268-.795.667-.97z" clip-rule="evenodd"></path></svg>
+                  Pinned
+                </span>
+              <% else %>
+                <span class="text-[10px] font-medium text-slate-400 italic">No Anchor</span>
+              <% end %>
+            </div>
+
+            <!-- Registered On -->
+            <div class="md:col-span-2 flex items-center text-xs text-slate-500 font-medium">
+              <%= DateTime.parse(repo['created_at']).strftime("%b %d, %Y") rescue repo['created_at'] %>
+            </div>
+
+            <!-- Actions -->
+            <div class="md:col-span-2 flex items-center md:justify-end">
+              <button id="ignore-btn-<%= repo['id'] %>" onclick="toggleIgnoreRepo(<%= repo['id'] %>)" class="p-1.5 rounded-lg border border-slate-250 bg-slate-50 text-slate-500 hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 cursor-pointer transition-all flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider" title="Toggle Ignore">
+                <span id="eye-open-<%= repo['id'] %>" class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Ignore
+                </span>
+                <span id="eye-closed-<%= repo['id'] %>" class="hidden flex items-center gap-1 text-slate-400">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                  Ignored
+                </span>
+              </button>
             </div>
           </div>
         <% end %>
-      <% end %>
-    </div>
+      </div>
+    <% end %>
 
-    <!-- Right: Linking Tool (1 Col wide) -->
-    <div class="flex flex-col gap-6">
+    <!-- Tools Grid Footer Section inside the Repositories card -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-slate-200 pt-6 mt-2">
       <!-- Register CLI Command Instruction Panel -->
-      <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-4">
+      <div class="flex flex-col gap-4">
         <div>
-          <h2 class="text-xl font-bold text-slate-900">Register New Repository</h2>
+          <h3 class="text-base font-bold text-slate-900">Register New Repository</h3>
           <p class="text-xs text-slate-500">
             Run this CLI command to register a new repository on the trust network. Need the CLI?
             <button id="open-install-modal" class="text-emerald-600 hover:text-emerald-700 hover:underline font-semibold cursor-pointer bg-transparent border-0 p-0 inline">Install pkablk</button>
@@ -116,9 +127,10 @@
         </div>
       </div>
 
-      <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
+      <!-- Registry Linker Tool -->
+      <div class="flex flex-col gap-4">
         <div>
-          <h2 class="text-xl font-bold text-slate-900">Registry Linker Tool</h2>
+          <h3 class="text-base font-bold text-slate-900">Registry Linker Tool</h3>
           <p class="text-xs text-slate-500">Add active package ledgers to this project space.</p>
         </div>
 
@@ -135,20 +147,161 @@
         <% end %>
       </div>
     </div>
-  </div>
-</div>
+  </d  <!-- Candlestick Charts Section -->
+  <% unless @linked_repositories.empty? %>
+    <% @linked_repositories.each do |repo| %>
+      <div id="candlestick-wrapper-<%= repo['id'] %>" class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
+        <div class="flex justify-between items-start flex-wrap gap-4">
+          <div>
+            <h3 class="text-lg font-bold text-slate-900">SemVer Candlestick Timelines: <%= repo['owner'] %>/<%= repo['repo'] %></h3>
+            <p class="text-xs text-slate-500">Visualizes package constraints (wick), active version timeline (body), current pinned version (dot), and upstream release drift (line/endpoint).</p>
+          </div>
+        </div>
 
+        <!-- Row of Tools (View, Status, Alert) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50/75 rounded-xl p-5 border border-slate-200/60 text-xs">
+          <!-- View Settings -->
+          <div class="flex flex-col gap-3">
+            <h4 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-200 pb-2">
+              <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              View Settings
+            </h4>
+            <div id="manifest-filters-<%= repo['id'] %>" class="flex flex-col gap-2">
+              <span class="text-slate-400 italic">Detecting manifests...</span>
+            </div>
+          </div>
+
+          <!-- Chain Status -->
+          <div class="flex flex-col gap-3">
+            <h4 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-200 pb-2">
+              <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              Chain Status
+            </h4>
+            <div id="chain-status-<%= repo['id'] %>" class="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-[11px] text-slate-600">
+              <div class="text-slate-400 font-sans font-semibold">Total Blocks:</div>
+              <div id="status-blocks-<%= repo['id'] %>" class="font-bold text-slate-800">-</div>
+              <div class="text-slate-400 font-sans font-semibold">Rollovers:</div>
+              <div id="status-rollovers-<%= repo['id'] %>" class="font-bold text-slate-800">-</div>
+              <div class="text-slate-400 font-sans font-semibold">Forgots:</div>
+              <div id="status-forgots-<%= repo['id'] %>" class="font-bold text-slate-800">-</div>
+              <div class="text-slate-400 col-span-2 mt-1 border-t border-slate-100 pt-1.5 font-sans font-semibold">Chain Init:</div>
+              <div id="status-init-<%= repo['id'] %>" class="col-span-2 truncate text-[10px] text-slate-500">-</div>
+              <div class="col-span-2 mt-1 border-t border-slate-100 pt-1 font-sans font-semibold">Last Block:</div>
+              <div id="status-last-<%= repo['id'] %>" class="col-span-2 truncate text-[10px] text-slate-500">-</div>
+            </div>
+          </div>
+
+          <!-- Alert Settings -->
+          <div class="flex flex-col gap-3">
+            <h4 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-200 pb-2">
+              <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              Alert Settings
+            </h4>
+            <div class="flex flex-col gap-2.5">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" id="alert-error-<%= repo['id'] %>" checked onchange="toggleAlertFilter(<%= repo['id'] %>, 'error')" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                <span class="font-semibold text-slate-700">Errors</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-50 border border-rose-100 text-rose-600 uppercase font-bold tracking-wider">Active</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" id="alert-warn-<%= repo['id'] %>" checked onchange="toggleAlertFilter(<%= repo['id'] %>, 'warn')" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                <span class="font-semibold text-slate-700">Warnings</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-50 border border-amber-100 text-amber-600 uppercase font-bold tracking-wider">Active</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" id="alert-info-<%= repo['id'] %>" checked onchange="toggleAlertFilter(<%= repo['id'] %>, 'info')" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                <span class="font-semibold text-slate-700">Info Alerts</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-blue-50 border border-blue-100 text-blue-600 uppercase font-bold tracking-wider">Active</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div id="candlestick-chart-<%= repo['id'] %>" data-repo-id="<%= repo['id'] %>" data-url="<%= candlesticks_repository_path(repo['id']) %>" data-tree-url="<%= tree_repository_path(repo['id']) %>" data-premium="<%= repo['is_premium'] == 1 %>" class="candlestick-chart w-full bg-slate-50/30 rounded-lg p-4 border border-slate-200 min-h-[100px] flex flex-col gap-6 items-stretch">
+          <div class="flex items-center justify-center py-8 loader-placeholder">
+            <span class="text-xs text-slate-400 italic">Loading candlesticks...</span>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script>
-  document.addEventListener("turbo:load", initCandlesticks);
+  document.addEventListener("turbo:load", () => {
+    initCandlesticks();
+    initIgnoreStates();
+  });
 
   if (document.readyState === "complete" || document.readyState === "interactive") {
     initCandlesticks();
+    initIgnoreStates();
   } else {
-    document.addEventListener("DOMContentLoaded", initCandlesticks);
+    document.addEventListener("DOMContentLoaded", () => {
+      initCandlesticks();
+      initIgnoreStates();
+    });
+  }
+
+  function initIgnoreStates() {
+    try {
+      const ignored = JSON.parse(localStorage.getItem('ignored_repos') || '{}');
+      Object.keys(ignored).forEach(repoId => {
+        const wrapper = document.getElementById(`candlestick-wrapper-${repoId}`);
+        const eyeOpen = document.getElementById(`eye-open-${repoId}`);
+        const eyeClosed = document.getElementById(`eye-closed-${repoId}`);
+        const row = document.getElementById(`repo-row-${repoId}`);
+        
+        if (wrapper) wrapper.classList.add('hidden');
+        if (eyeOpen) eyeOpen.classList.add('hidden');
+        if (eyeClosed) eyeClosed.classList.remove('hidden');
+        if (row) row.classList.add('opacity-60');
+      });
+    } catch (e) {
+      console.error("Failed to load ignored states:", e);
+    }
+  }
+
+  window.toggleIgnoreRepo = function(repoId) {
+    const wrapper = document.getElementById(`candlestick-wrapper-${repoId}`);
+    const eyeOpen = document.getElementById(`eye-open-${repoId}`);
+    const eyeClosed = document.getElementById(`eye-closed-${repoId}`);
+    const row = document.getElementById(`repo-row-${repoId}`);
+
+    let ignored = {};
+    try {
+      ignored = JSON.parse(localStorage.getItem('ignored_repos') || '{}');
+    } catch (e) {}
+    
+    if (ignored[repoId]) {
+      // Un-ignore
+      delete ignored[repoId];
+      if (wrapper) wrapper.classList.remove('hidden');
+      if (eyeOpen) eyeOpen.classList.remove('hidden');
+      if (eyeClosed) eyeClosed.classList.add('hidden');
+      if (row) row.classList.remove('opacity-60');
+    } else {
+      // Ignore
+      ignored[repoId] = true;
+      if (wrapper) wrapper.classList.add('hidden');
+      if (eyeOpen) eyeOpen.classList.add('hidden');
+      if (eyeClosed) eyeClosed.classList.remove('hidden');
+      if (row) row.classList.add('opacity-60');
+    }
+    
+    try {
+      localStorage.setItem('ignored_repos', JSON.stringify(ignored));
+    } catch (e) {}
   }
 
   function initCandlesticks() {
@@ -158,7 +311,23 @@
       container.setAttribute("data-initialized", "true");
 
       const url = container.getAttribute("data-url");
+      const treeUrl = container.getAttribute("data-tree-url");
+      const repoId = container.getAttribute("data-repo-id");
       const isPremium = container.getAttribute("data-premium") === "true";
+      
+      // Initialize repo configs
+      window.repoConfigs = window.repoConfigs || {};
+      window.repoConfigs[repoId] = {
+        activeManifests: new Set(),
+        allManifests: [],
+        alerts: {
+          error: true,
+          warn: true,
+          info: true
+        }
+      };
+
+      // Fetch candlesticks (YAML)
       fetch(url)
         .then(res => {
           if (!res.ok) throw new Error("Status: " + res.status);
@@ -166,13 +335,195 @@
         })
         .then(yamlText => {
           const data = jsyaml.load(yamlText);
-          renderChart(container, data, isPremium);
+          window.repoRawData = window.repoRawData || {};
+          window.repoRawData[repoId] = data;
+
+          if (!data || data.length === 0) {
+            const statusDiv = document.getElementById(`verification-status-${repoId}`);
+            if (statusDiv) {
+              statusDiv.innerHTML = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-rose-200 bg-rose-50 text-rose-600 uppercase tracking-wider flex items-center gap-1">⚠️ Warn</span>`;
+            }
+          }
+
+          // Detect manifests
+          const manifestFiltersDiv = document.getElementById(`manifest-filters-${repoId}`);
+          if (manifestFiltersDiv) {
+            manifestFiltersDiv.innerHTML = "";
+            const manifestsMap = {};
+            if (data && data.length > 0) {
+              data.forEach(d => {
+                const m = d.manifest || "package.json";
+                if (!manifestsMap[m]) {
+                  manifestsMap[m] = { isEmpty: true };
+                }
+                if (d.package) {
+                  manifestsMap[m].isEmpty = false;
+                }
+              });
+            }
+
+            const manifests = Object.keys(manifestsMap);
+            window.repoConfigs[repoId].allManifests = manifests;
+            manifests.forEach(m => {
+              window.repoConfigs[repoId].activeManifests.add(m);
+              const isEmpty = manifestsMap[m].isEmpty;
+              
+              const label = document.createElement("label");
+              label.className = "flex items-center justify-between gap-2 cursor-pointer select-none py-1 px-1.5 hover:bg-slate-100 rounded-lg transition-colors";
+              label.innerHTML = `
+                <span class="flex items-center gap-2">
+                  <input type="checkbox" checked onchange="toggleManifestFilter(${repoId}, '${m}')" id="manifest-${repoId}-${m}" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
+                  <span class="font-semibold text-slate-700 truncate max-w-[150px] font-mono">${m}</span>
+                </span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider border ${isEmpty ? 'bg-slate-150/40 text-slate-400 border-slate-205' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}">
+                  ${isEmpty ? 'Empty' : 'Active'}
+                </span>
+              `;
+              manifestFiltersDiv.appendChild(label);
+            });
+            
+            if (manifests.length === 0) {
+              manifestFiltersDiv.innerHTML = `<span class="text-slate-400 italic text-[11px]">No manifests detected</span>`;
+            }
+          }
+
+          renderChart(container, data, isPremium, repoId);
         })
         .catch(err => {
-          container.innerHTML = `<span class="text-xs text-rose-500 font-semibold">Failed to load candlesticks: ${err.message}</span>`;
+          if (window.repoConfigs[repoId] && window.repoConfigs[repoId].alerts.error) {
+            container.innerHTML = `<span class="text-xs text-rose-500 font-semibold">Failed to load candlesticks: ${err.message}</span>`;
+          } else {
+            container.innerHTML = "";
+          }
         });
+
+      // Fetch Tree (JSON) for status statistics
+      if (treeUrl) {
+        fetch(treeUrl)
+          .then(res => {
+            if (!res.ok) throw new Error("Status: " + res.status);
+            return res.json();
+          })
+          .then(treeData => {
+            const nodes = treeData && treeData.graph && treeData.graph.nodes;
+            if (nodes) {
+              
+              // Filter to block/rollover nodes for counting
+              const blockNodes = nodes.filter(n => n.type === "block" || n.type === "rollover");
+              const rolloverNodes = nodes.filter(n => n.type === "rollover");
+              
+              // Find genesis block index 0 (or first block)
+              let genesisBlock = blockNodes.find(n => n.block_index === 0);
+              if (!genesisBlock && blockNodes.length > 0) {
+                genesisBlock = blockNodes.reduce((min, n) => (n.block_index < min.block_index ? n : min), blockNodes[0]);
+              }
+              
+              // Find last block (highest index)
+              let lastBlock = null;
+              if (blockNodes.length > 0) {
+                lastBlock = blockNodes.reduce((max, n) => (n.block_index > max.block_index ? n : max), blockNodes[0]);
+              }
+              
+              // Count forget events
+              let forgetCount = 0;
+              blockNodes.forEach(node => {
+                if (node.data_payload) {
+                  try {
+                    const parsedData = jsyaml.load(node.data_payload);
+                    if (parsedData && parsedData.lockfiles) {
+                      Object.values(parsedData.lockfiles).forEach(lf => {
+                        if (lf && lf.chain_event === "forget") {
+                          forgetCount++;
+                        }
+                      });
+                    }
+                  } catch (e) {
+                    console.error("Failed to parse block payload for forget count", e);
+                  }
+                }
+              });
+
+              // Format date helper
+              const formatDate = (isoString) => {
+                if (!isoString) return "-";
+                try {
+                  const date = new Date(isoString);
+                  return date.toLocaleString();
+                } catch (e) {
+                  return isoString;
+                }
+              };
+
+              // Update DOM
+              const numBlocksEl = document.getElementById(`status-blocks-${repoId}`);
+              const numRolloversEl = document.getElementById(`status-rollovers-${repoId}`);
+              const numForgotsEl = document.getElementById(`status-forgots-${repoId}`);
+              const initTimeEl = document.getElementById(`status-init-${repoId}`);
+              const lastTimeEl = document.getElementById(`status-last-${repoId}`);
+
+              if (numBlocksEl) numBlocksEl.innerText = blockNodes.length;
+              if (numRolloversEl) numRolloversEl.innerText = rolloverNodes.length;
+              if (numForgotsEl) numForgotsEl.innerText = forgetCount;
+              if (initTimeEl) initTimeEl.innerText = genesisBlock ? formatDate(genesisBlock.timestamp) : "-";
+              if (lastTimeEl) lastTimeEl.innerText = lastBlock ? formatDate(lastBlock.timestamp) : "-";
+            }
+          })
+          .catch(err => {
+            console.error("Failed to load chain status tree data:", err);
+            const statusContainer = document.getElementById(`chain-status-${repoId}`);
+            if (statusContainer) {
+              statusContainer.innerHTML = `<div class="col-span-2 text-rose-500 font-semibold text-[11px] leading-tight">Failed to load chain stats: ${err.message}</div>`;
+            }
+          });
+      }
     });
   }
+
+  window.toggleManifestFilter = function(repoId, manifest) {
+    const config = window.repoConfigs[repoId];
+    if (!config) return;
+    
+    const isChecked = document.getElementById(`manifest-${repoId}-${manifest}`).checked;
+    if (isChecked) {
+      config.activeManifests.add(manifest);
+    } else {
+      config.activeManifests.delete(manifest);
+    }
+    
+    const container = document.getElementById(`candlestick-chart-${repoId}`);
+    if (container && window.repoRawData && window.repoRawData[repoId]) {
+      renderChart(container, window.repoRawData[repoId], container.getAttribute("data-premium") === "true", repoId);
+    }
+  };
+
+  window.toggleAlertFilter = function(repoId, type) {
+    const config = window.repoConfigs[repoId];
+    if (!config) return;
+    
+    const isChecked = document.getElementById(`alert-${type}-${repoId}`).checked;
+    config.alerts[type] = isChecked;
+    
+    const container = document.getElementById(`candlestick-chart-${repoId}`);
+    const isPremium = container && container.getAttribute("data-premium") === "true";
+
+    if (type === 'warn') {
+      const warnBadge = document.querySelector(`#verification-status-${repoId} .border-rose-200`);
+      if (warnBadge) {
+        if (isChecked) warnBadge.classList.remove('hidden');
+        else warnBadge.classList.add('hidden');
+      }
+      
+      const noManifestsWarn = document.querySelector(`#candlestick-chart-${repoId} .border-rose-200`);
+      if (noManifestsWarn) {
+        if (isChecked) noManifestsWarn.classList.remove('hidden');
+        else noManifestsWarn.classList.add('hidden');
+      }
+    }
+    
+    if (container && window.repoRawData && window.repoRawData[repoId]) {
+      renderChart(container, window.repoRawData[repoId], isPremium, repoId);
+    }
+  };
 
   function semverToNumber(ver) {
     if (!ver || ver === "infinity") return 0;
@@ -188,20 +539,54 @@
     return parts[0] * 1000000 + parts[1] * 1000 + parts[2];
   }
 
-  function renderChart(container, data, isPremium) {
+  function renderChart(container, data, isPremium, repoId) {
     container.innerHTML = ""; // Clear loader
+    
+    const config = window.repoConfigs[repoId];
+    const alertConfig = config ? config.alerts : { error: true, warn: true, info: true };
+    
     if (!data || data.length === 0) {
-      container.innerHTML = `<div class="flex items-center justify-center py-8"><span class="text-xs text-slate-500 italic">No package SemVer constraints found.</span></div>`;
+      if (alertConfig.warn) {
+        container.innerHTML = `
+          <div class="flex items-center gap-3 p-4.5 rounded-lg border border-rose-200 bg-rose-50/50 text-rose-700 text-xs">
+            <span class="text-base">⚠️</span>
+            <div>
+              <strong>No Initialized Manifests:</strong> This repository has no package SemVer constraints or manifests tracked in its cryptographic ledger.
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="flex items-center justify-center py-6 text-slate-400 italic text-xs">
+            No package SemVer constraints found.
+          </div>
+        `;
+      }
       return;
+    }
+
+    // Filter data by active manifests
+    let filteredData = data;
+    if (config && config.activeManifests) {
+      filteredData = data.filter(d => config.activeManifests.has(d.manifest || "package.json"));
     }
 
     // Group packages by manifest
     const groups = {};
-    data.forEach(d => {
+    filteredData.forEach(d => {
       const m = d.manifest || "package.json";
       if (!groups[m]) groups[m] = [];
       groups[m].push(d);
     });
+
+    if (Object.keys(groups).length === 0) {
+      container.innerHTML = `
+        <div class="flex items-center justify-center py-8">
+          <span class="text-xs text-slate-400 italic">All manifests are filtered out.</span>
+        </div>
+      `;
+      return;
+    }
 
     // Render a section for each manifest
     Object.entries(groups).forEach(([manifestName, groupData]) => {
@@ -222,18 +607,82 @@
       if (actualPackages.length === 0) {
         chartDiv.innerHTML = `<span class="text-xs text-slate-400 italic block pl-4 pb-2">No package constraints tracked in this manifest.</span>`;
       } else {
-        renderSingleChart(chartDiv, actualPackages, isPremium);
+        renderSingleChart(chartDiv, actualPackages, isPremium, alertConfig);
       }
     });
   }
 
-  function renderSingleChart(container, data, isPremium) {
-    const rowHeight = 60;
-    const margin = { top: 15, right: 80, bottom: 25, left: 160 };
-    // Ensure chartWidth is always at least 600px
+  function renderSingleChart(container, data, isPremium, alertConfig) {
+    const margin = { top: 10, right: 60, bottom: 15, left: 160 };
     const chartWidth = Math.max(600, container.clientWidth || 600);
     const width = chartWidth - margin.left - margin.right;
-    const height = data.length * rowHeight;
+
+    // First pass: Calculate positions and total height dynamically
+    let currentY = 0;
+    const rowPositions = [];
+    data.forEach((d, idx) => {
+      const minVal = semverToNumber(d.min_version) || 0;
+      const firstVal = semverToNumber(d.first_seen_version) || minVal;
+      const pinnedVal = semverToNumber(d.current_pinned_version) || minVal;
+      const latestVal = semverToNumber(d.latest_upstream_version) || pinnedVal;
+      const isInfinity = d.max_version === "infinity";
+
+      let maxVal = isInfinity
+        ? Math.max(latestVal, pinnedVal) + (Math.max(latestVal, pinnedVal) - minVal || 1000) * 1.5
+        : (semverToNumber(d.max_version) || (Math.max(minVal, pinnedVal, latestVal) + 1000));
+      if (maxVal <= minVal) maxVal = minVal + 1000;
+
+      const domainStart = Math.min(minVal, firstVal);
+      const xScale = d3.scaleLinear()
+        .domain([domainStart, maxVal])
+        .range([0, width]);
+
+      const xMin = xScale(minVal);
+      const xMax = isInfinity ? width : xScale(maxVal);
+
+      // Estimate if package name or min version string is too long, or if they physically overlap.
+      const pkgLen = (d.package || "").length;
+      const minVerLen = (d.min_version || "").length;
+      const constraintLen = (d.constraint || "").length;
+      const pinnedLen = (d.current_pinned_version || "").length;
+      const xPinned = xScale(pinnedVal);
+
+      // 1. Package name vs Pinned Version Label horizontal overlap on y-9 line:
+      const pkgRight = -150 + pkgLen * 7.5;
+      const pinnedLeft = xPinned - (pinnedLen * 3);
+      const pkgPinnedOverlap = pkgRight + 12 > pinnedLeft;
+
+      // 2. Constraint vs Min Version Label horizontal overlap on y+3 line:
+      const constraintRight = -150 + constraintLen * 6.5 + 15;
+      const minVerLeft = xMin - 8 - (minVerLen * 6);
+      const constraintMinOverlap = (d.min_version !== d.current_pinned_version) && (constraintRight + 12 > minVerLeft);
+
+      // 3. General "too long" threshold checks for package name (> 16 chars) or min version string (> 8 chars)
+      const isPkgTooLong = pkgLen > 16;
+      const isMinVerTooLong = minVerLen > 8;
+
+      const needsWrap = isPkgTooLong || isMinVerTooLong || pkgPinnedOverlap || constraintMinOverlap;
+
+      rowPositions.push({
+        y: needsWrap ? currentY + 33 : currentY + 22,
+        yText: currentY + 13,
+        yConstraint: needsWrap ? currentY + 25 : currentY + 26,
+        needsWrap: needsWrap,
+        height: needsWrap ? 58 : 44,
+        xScale: xScale,
+        xMin: xMin,
+        xMax: xMax,
+        minVal: minVal,
+        firstVal: firstVal,
+        pinnedVal: pinnedVal,
+        latestVal: latestVal,
+        isInfinity: isInfinity
+      });
+
+      currentY += needsWrap ? 58 : 44;
+    });
+
+    const height = currentY;
 
     let tooltip = d3.select("body").select(".candlestick-tooltip");
     if (tooltip.empty()) {
@@ -265,40 +714,35 @@
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     data.forEach((d, idx) => {
-      const y = idx * rowHeight + rowHeight / 2;
-
-      const minVal = semverToNumber(d.min_version) || 0;
-      const firstVal = semverToNumber(d.first_seen_version) || minVal;
-      const pinnedVal = semverToNumber(d.current_pinned_version) || minVal;
-      const latestVal = semverToNumber(d.latest_upstream_version) || pinnedVal;
-      const isInfinity = d.max_version === "infinity";
-
-      let maxVal = isInfinity
-        ? Math.max(latestVal, pinnedVal) + (Math.max(latestVal, pinnedVal) - minVal || 1000) * 1.5
-        : (semverToNumber(d.max_version) || (Math.max(minVal, pinnedVal, latestVal) + 1000));
-      if (maxVal <= minVal) maxVal = minVal + 1000;
-
-      const domainStart = Math.min(minVal, firstVal);
-      const xScale = d3.scaleLinear()
-        .domain([domainStart, maxVal])
-        .range([0, width]);
+      const row = rowPositions[idx];
+      const y = row.y;
+      const xScale = row.xScale;
+      const xMin = row.xMin;
+      const xMax = row.xMax;
+      const minVal = row.minVal;
+      const firstVal = row.firstVal;
+      const pinnedVal = row.pinnedVal;
+      const latestVal = row.latestVal;
+      const isInfinity = row.isInfinity;
 
       const g = svg.append("g");
 
+      const rowStart = row.yText - 13;
+      const rowEnd = rowStart + row.height;
       if (idx < data.length - 1) {
         svg.append("line")
           .attr("x1", -margin.left)
-          .attr("y1", (idx + 1) * rowHeight)
+          .attr("y1", rowEnd)
           .attr("x2", width + margin.right)
-          .attr("y2", (idx + 1) * rowHeight)
+          .attr("y2", rowEnd)
           .attr("stroke", "#f1f5f9")
           .attr("stroke-width", 1);
       }
 
       g.append("text")
-        .attr("x", -10)
-        .attr("y", y + 4)
-        .attr("text-anchor", "end")
+        .attr("x", -margin.left + 10)
+        .attr("y", row.yText)
+        .attr("text-anchor", "start")
         .attr("fill", "#0f172a")
         .attr("font-size", "13px")
         .attr("font-family", "'IBM Plex Mono', monospace")
@@ -306,16 +750,13 @@
         .text(d.package);
 
       g.append("text")
-        .attr("x", -10)
-        .attr("y", y + 16)
-        .attr("text-anchor", "end")
+        .attr("x", -margin.left + 10)
+        .attr("y", row.yConstraint)
+        .attr("text-anchor", "start")
         .attr("fill", "#475569")
         .attr("font-size", "11px")
         .attr("font-family", "'IBM Plex Mono', monospace")
         .text(`(${d.constraint})`);
-
-      const xMin = xScale(minVal);
-      const xMax = isInfinity ? width : xScale(maxVal);
 
       g.append("line")
         .attr("x1", xMin)
@@ -328,24 +769,24 @@
 
       g.append("line")
         .attr("x1", xMin)
-        .attr("y1", y - 6)
+        .attr("y1", y - 5)
         .attr("x2", xMin)
-        .attr("y2", y + 6)
+        .attr("y2", y + 5)
         .attr("stroke", "#94a3b8")
         .attr("stroke-width", 2);
 
       if (!isInfinity) {
         g.append("line")
           .attr("x1", xMax)
-          .attr("y1", y - 6)
+          .attr("y1", y - 5)
           .attr("x2", xMax)
-          .attr("y2", y + 6)
+          .attr("y2", y + 5)
           .attr("stroke", "#94a3b8")
           .attr("stroke-width", 2);
       } else {
         g.append("text")
           .attr("x", xMax + 10)
-          .attr("y", y + 4)
+          .attr("y", y + 3)
           .attr("fill", "#64748b")
           .attr("font-size", "14px")
           .text("∞");
@@ -358,10 +799,11 @@
       const bodyMax = Math.max(xFirst, xLatest);
       const bodyWidth = Math.max(2, bodyMax - bodyMin);
 
-      const hasDrift = isPremium ? (pinnedVal < latestVal) : false;
+      const hasDrift = (isPremium && (!alertConfig || alertConfig.warn)) ? (pinnedVal < latestVal) : false;
       const bodyColor = hasDrift ? "#f59e0b" : "#10b981";
       const driftColor = hasDrift ? "#d97706" : "#059669";
       const driftText = hasDrift ? "Drift Detected" : "Up to Date";
+      const showInfo = !alertConfig || alertConfig.info;
 
       const tooltipHtml = isPremium ? `
         <div style="font-weight: bold; font-size: 13px; color: #0f172a; margin-bottom: 8px; border-bottom: 1px solid rgba(0, 0, 0, 0.08); padding-bottom: 6px; font-family: 'IBM Plex Sans', sans-serif;">
@@ -407,14 +849,17 @@
             <td style="color: #64748b; padding: 2px 8px 2px 0; text-align: left;">First Seen:</td>
             <td style="color: #334155; padding: 2px 0;">${d.first_seen_version || 'N/A'}</td>
           </tr>
+          ${showInfo ? `
           <tr>
             <td style="color: #64748b; padding: 2px 8px 2px 0; text-align: left;">Latest Upstream:</td>
             <td style="color: #7c3aed; font-weight: bold; padding: 2px 0;">🔒 Premium Feature</td>
           </tr>
+          ` : ''}
           <tr>
             <td style="color: #64748b; padding: 2px 8px 2px 0; text-align: left;">Allowed Range:</td>
             <td style="color: #475569; padding: 2px 0;">${d.min_version || '0.0.0'} to ${d.max_version || '∞'}</td>
           </tr>
+          ${showInfo ? `
           <tr>
             <td style="color: #64748b; padding: 6px 8px 2px 0; text-align: left;">Status:</td>
             <td style="padding: 6px 0;">
@@ -424,14 +869,15 @@
               </span>
             </td>
           </tr>
+          ` : ''}
         </table>
       `;
 
       g.append("rect")
         .attr("x", bodyMin)
-        .attr("y", y - 5)
+        .attr("y", y - 4)
         .attr("width", bodyWidth)
-        .attr("height", 10)
+        .attr("height", 8)
         .attr("fill", bodyColor)
         .attr("opacity", 0.45)
         .attr("rx", 2)
@@ -481,14 +927,14 @@
       g.append("circle")
         .attr("cx", xPinned)
         .attr("cy", y)
-        .attr("r", 5)
+        .attr("r", 4)
         .attr("fill", "#4f46e5")
         .attr("stroke", "#ffffff")
         .attr("stroke-width", 1.5);
 
       g.append("text")
         .attr("x", xPinned)
-        .attr("y", y - 10)
+        .attr("y", y - 9)
         .attr("text-anchor", "middle")
         .attr("fill", "#4f46e5")
         .attr("font-size", "11px")
@@ -496,20 +942,22 @@
         .attr("font-weight", "bold")
         .text(d.current_pinned_version);
 
-      g.append("text")
-        .attr("x", xMin)
-        .attr("y", y + 18)
-        .attr("text-anchor", "middle")
-        .attr("fill", "#64748b")
-        .attr("font-size", "10px")
-        .attr("font-family", "'IBM Plex Mono', monospace")
-        .text(d.min_version);
-
-      if (!isInfinity) {
+      if (d.min_version !== d.current_pinned_version) {
         g.append("text")
-          .attr("x", xMax)
-          .attr("y", y + 18)
-          .attr("text-anchor", "middle")
+          .attr("x", xMin - 8)
+          .attr("y", y + 3)
+          .attr("text-anchor", "end")
+          .attr("fill", "#64748b")
+          .attr("font-size", "10px")
+          .attr("font-family", "'IBM Plex Mono', monospace")
+          .text(d.min_version);
+      }
+
+      if (!isInfinity && d.max_version !== d.current_pinned_version) {
+        g.append("text")
+          .attr("x", xMax + 8)
+          .attr("y", y + 3)
+          .attr("text-anchor", "start")
           .attr("fill", "#64748b")
           .attr("font-size", "10px")
           .attr("font-family", "'IBM Plex Mono', monospace")
@@ -519,7 +967,7 @@
       if (isPremium && latestVal !== pinnedVal) {
         g.append("text")
           .attr("x", xLatest)
-          .attr("y", y + 18)
+          .attr("y", y + 13)
           .attr("text-anchor", "middle")
           .attr("fill", "#0f172a")
           .attr("font-size", "11px")
@@ -529,9 +977,9 @@
 
         g.append("line")
           .attr("x1", xLatest)
-          .attr("y1", y - 8)
+          .attr("y1", y - 6)
           .attr("x2", xLatest)
-          .attr("y2", y + 8)
+          .attr("y2", y + 6)
           .attr("stroke", "#f59e0b")
           .attr("stroke-width", 1.5);
       }
