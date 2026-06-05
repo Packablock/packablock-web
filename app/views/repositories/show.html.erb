@@ -47,6 +47,9 @@
             <span class="text-xs font-bold px-2 py-0.5 rounded border border-gray-600 bg-gray-800 text-gray-400 uppercase">Standard Tier</span>
           <% end %>
         </div>
+        <% if @repository["is_premium"] != 1 %>
+          <p class="text-[10px] text-[#c084fc] italic mt-1">💡 Upstream SemVer release tracking & drift detection are locked on Standard Tier.</p>
+        <% end %>
 
         <div class="flex gap-3 border-t border-[#1f2937] pt-4 mt-2">
           <%= button_to "Toggle Premium Access", toggle_premium_repository_path(@repository["id"]), method: :post, class: "flex-1 py-2.5 rounded-lg border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] font-bold text-xs cursor-pointer hover:bg-[#8b5cf6] hover:text-black transition-all uppercase tracking-wider" %>

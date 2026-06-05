@@ -58,12 +58,26 @@
       <% unless @linked_repositories.empty? %>
         <% @linked_repositories.each do |repo| %>
           <div class="border border-[#1f2937] rounded-xl bg-[#111827]/20 p-6 flex flex-col gap-4 mt-6">
-            <div>
-              <h3 class="text-lg font-bold text-white">SemVer Candlestick Timelines: <%= repo['owner'] %>/<%= repo['repo'] %></h3>
-              <p class="text-xs text-gray-400">Visualizes package constraints (wick), active version timeline (body), current pinned version (dot), and upstream release drift (line/endpoint).</p>
+            <div class="flex justify-between items-start flex-wrap gap-4">
+              <div>
+                <h3 class="text-lg font-bold text-white">SemVer Candlestick Timelines: <%= repo['owner'] %>/<%= repo['repo'] %></h3>
+                <p class="text-xs text-gray-400">Visualizes package constraints (wick), active version timeline (body), current pinned version (dot), and upstream release drift (line/endpoint).</p>
+              </div>
+              <% if repo['is_premium'] != 1 %>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase">Standard Tier</span>
+              <% else %>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded border border-[#10b981]/30 bg-[#10b981]/10 text-[#10b981] uppercase">Premium Tier</span>
+              <% end %>
             </div>
+
+            <% if repo['is_premium'] != 1 %>
+              <div class="p-3.5 rounded-lg border border-[#8b5cf6]/20 bg-[#8b5cf6]/5 text-xs text-[#c084fc] flex items-center gap-2">
+                <span class="text-base">💡</span>
+                <span><strong>Hosted Registry Customers Only:</strong> Upstream release monitoring and drift warning alerts are restricted to premium accounts. Upgrade this repository to Premium to enable real-time SemVer drift detection.</span>
+              </div>
+            <% end %>
             
-            <div id="candlestick-chart-<%= repo['id'] %>" data-url="<%= candlesticks_repository_path(repo['id']) %>" class="candlestick-chart w-full bg-[#0b0f19]/30 rounded-lg p-4 border border-[#1f2937]/50 min-h-[100px] flex flex-col gap-6 items-stretch">
+            <div id="candlestick-chart-<%= repo['id'] %>" data-url="<%= candlesticks_repository_path(repo['id']) %>" data-premium="<%= repo['is_premium'] == 1 %>" class="candlestick-chart w-full bg-[#0b0f19]/30 rounded-lg p-4 border border-[#1f2937]/50 min-h-[100px] flex flex-col gap-6 items-stretch">
               <div class="flex items-center justify-center py-8 loader-placeholder">
                 <span class="text-xs text-gray-500 italic">Loading candlesticks...</span>
               </div>
@@ -115,6 +129,7 @@
       container.setAttribute("data-initialized", "true");
 
       const url = container.getAttribute("data-url");
+      const isPremium = container.getAttribute("data-premium") === "true";
       fetch(url)
         .then(res => {
           if (!res.ok) throw new Error("Status: " + res.status);
@@ -122,7 +137,7 @@
         })
         .then(yamlText => {
           const data = jsyaml.load(yamlText);
-          renderChart(container, data);
+          renderChart(container, data, isPremium);
         })
         .catch(err => {
           container.innerHTML = `<span class="text-xs text-red-500 font-semibold">Failed to load candlesticks: ${err.message}</span>`;
@@ -144,7 +159,7 @@
     return parts[0] * 1000000 + parts[1] * 1000 + parts[2];
   }
 
-  function renderChart(container, data) {
+  function renderChart(container, data, isPremium) {
     container.innerHTML = ""; // Clear loader
     if (!data || data.length === 0) {
       container.innerHTML = `<div class="flex items-center justify-center py-8"><span class="text-xs text-gray-500 italic">No package SemVer constraints found.</span></div>`;
@@ -178,12 +193,12 @@
       if (actualPackages.length === 0) {
         chartDiv.innerHTML = `<span class="text-xs text-gray-500 italic block pl-4 pb-2">No package constraints tracked in this manifest.</span>`;
       } else {
-        renderSingleChart(chartDiv, actualPackages);
+        renderSingleChart(chartDiv, actualPackages, isPremium);
       }
     });
   }
 
-  function renderSingleChart(container, data) {
+  function renderSingleChart(container, data, isPremium) {
     const rowHeight = 60;
     const margin = { top: 15, right: 80, bottom: 25, left: 160 };
     // Ensure chartWidth is always at least 600px
@@ -314,12 +329,12 @@
       const bodyMax = Math.max(xFirst, xLatest);
       const bodyWidth = Math.max(2, bodyMax - bodyMin);
 
-      const hasDrift = pinnedVal < latestVal;
+      const hasDrift = isPremium ? (pinnedVal < latestVal) : false;
       const bodyColor = hasDrift ? "#f59e0b" : "#10b981";
       const driftColor = hasDrift ? "#f59e0b" : "#10b981";
       const driftText = hasDrift ? "Drift Detected" : "Up to Date";
 
-      const tooltipHtml = `
+      const tooltipHtml = isPremium ? `
         <div style="font-weight: bold; font-size: 13px; color: #ffffff; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 6px; font-family: sans-serif;">
           ${d.package} <span style="font-weight: normal; color: #9ca3af; font-size: 11px;">(${d.constraint})</span>
         </div>
@@ -346,6 +361,37 @@
               <span style="background-color: ${hasDrift ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)'}; color: ${driftColor}; border: 1px solid ${driftColor}33; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px;">
                 <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background-color: ${driftColor};"></span>
                 ${driftText}
+              </span>
+            </td>
+          </tr>
+        </table>
+      ` : `
+        <div style="font-weight: bold; font-size: 13px; color: #ffffff; margin-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 6px; font-family: sans-serif;">
+          ${d.package} <span style="font-weight: normal; color: #9ca3af; font-size: 11px;">(${d.constraint})</span>
+        </div>
+        <table style="border-collapse: collapse; width: 100%; font-size: 11px; font-family: monospace;">
+          <tr>
+            <td style="color: #9ca3af; padding: 2px 8px 2px 0; text-align: left;">Pinned:</td>
+            <td style="color: #6366f1; font-weight: bold; padding: 2px 0;">${d.current_pinned_version || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="color: #9ca3af; padding: 2px 8px 2px 0; text-align: left;">First Seen:</td>
+            <td style="color: #e2e8f0; padding: 2px 0;">${d.first_seen_version || 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="color: #9ca3af; padding: 2px 8px 2px 0; text-align: left;">Latest Upstream:</td>
+            <td style="color: #a855f7; font-weight: bold; padding: 2px 0;">🔒 Premium Feature</td>
+          </tr>
+          <tr>
+            <td style="color: #9ca3af; padding: 2px 8px 2px 0; text-align: left;">Allowed Range:</td>
+            <td style="color: #cbd5e1; padding: 2px 0;">${d.min_version || '0.0.0'} to ${d.max_version || '∞'}</td>
+          </tr>
+          <tr>
+            <td style="color: #9ca3af; padding: 6px 8px 2px 0; text-align: left;">Status:</td>
+            <td style="padding: 6px 0;">
+              <span style="background-color: rgba(139, 92, 246, 0.15); color: #a855f7; border: 1px solid rgba(139, 92, 246, 0.3); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 4px;">
+                <span style="display: inline-block; width: 5px; height: 5px; border-radius: 50%; background-color: #a855f7;"></span>
+                Restricted (Standard Account)
               </span>
             </td>
           </tr>
@@ -441,7 +487,7 @@
           .text(d.max_version);
       }
 
-      if (latestVal !== pinnedVal) {
+      if (isPremium && latestVal !== pinnedVal) {
         g.append("text")
           .attr("x", xLatest)
           .attr("y", y + 18)
