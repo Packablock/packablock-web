@@ -27,7 +27,7 @@
 
   <% if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
     <div class="text-center border-t border-[#1f2937] pt-4">
-      <%= link_to "Reset superuser credentials?", new_password_path(resource_name), class: "text-xs font-semibold text-[#8b5cf6] hover:underline" %>
+      <%= link_to "Reset superuser credentials?", new_password_path(resource_name), class: "text-xs font-semibold text-blue-500 hover:underline" %>
     </div>
   <% end %>
 </div>

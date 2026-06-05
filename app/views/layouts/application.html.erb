@@ -118,7 +118,7 @@
 
             <!-- Admin Dropdown Menu -->
             <div class="relative flex items-center" id="admin-dropdown-container">
-              <button id="admin-trigger" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all focus:outline-none cursor-pointer text-xs font-semibold uppercase <%= current_admin.superuser? ? 'border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] hover:bg-[#8b5cf6]/20' : 'border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200' %>" aria-label="Admin Action Menu">
+              <button id="admin-trigger" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border transition-all focus:outline-none cursor-pointer text-xs font-semibold uppercase <%= current_admin.superuser? ? 'border-blue-500/30 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20' : 'border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200' %>" aria-label="Admin Action Menu">
                 <span>
                   <% if current_admin.superuser? %>
                     Root Admin

@@ -73,7 +73,7 @@
                       <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-slate-200 bg-slate-50/50 max-w-full">
                         <%= link_to "#{repo['owner']}/#{repo['repo']}", repository_path(repo['id']), class: "text-xs font-mono font-medium text-slate-600 hover:text-slate-900 truncate max-w-[160px] hover:underline" %>
                         <% if repo["is_premium"] == 1 %>
-                          <span class="text-[8px] font-bold px-1 py-0.2 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase tracking-wider flex-shrink-0">Prem</span>
+                          <span class="text-[8px] font-bold px-1 py-0.2 rounded border border-blue-200 bg-blue-50 text-blue-700 uppercase tracking-wider flex-shrink-0">Prem</span>
                         <% else %>
                           <span class="text-[8px] font-bold px-1 py-0.2 rounded border border-slate-200 bg-slate-100 text-slate-500 uppercase tracking-wider flex-shrink-0">Std</span>
                         <% end %>
