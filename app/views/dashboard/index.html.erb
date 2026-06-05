@@ -11,46 +11,19 @@
         </svg>
       </div>
       <div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Trust Registry Console</h1>
+        <div class="flex items-center gap-3">
+          <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Trust Registry Console</h1>
+          <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold px-2 py-0.5 rounded border <%= @status_secured ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700' %> uppercase tracking-wider">
+            <span class="w-1.5 h-1.5 rounded-full <%= @status_secured ? 'bg-emerald-500' : 'bg-rose-500 animate-pulse' %>"></span>
+            Registry <%= @status_secured ? 'Secured' : 'Offline' %>
+          </span>
+        </div>
         <p class="text-sm text-slate-500">Zero-trust supply chain audit logs & repository integrity checks.</p>
       </div>
     </div>
     <div class="flex gap-3">
       <%= button_to "GC Stale Signups", purge_stale_repositories_path, method: :post, class: "px-4 py-2 text-xs font-bold rounded-lg border border-rose-200 bg-rose-50 text-rose-600 cursor-pointer hover:bg-rose-600 hover:text-white transition-all uppercase tracking-wider" %>
       <%= link_to "+ Create Project", new_project_path, class: "px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white cursor-pointer hover:bg-emerald-700 hover:shadow-md transition-all uppercase tracking-wider flex items-center" %>
-    </div>
-  </div>
-
-  <!-- Diagnostics Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2 relative overflow-hidden group">
-      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all"></div>
-      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Core CPU</span>
-      <span class="text-2xl font-black text-slate-900 font-mono"><%= @metrics[:cpu] %></span>
-      <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">🟢 Low utilization</span>
-    </div>
-
-    <div class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2 relative overflow-hidden group">
-      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-violet-500/5 rounded-full blur-xl group-hover:bg-violet-500/10 transition-all"></div>
-      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Memory Allocation</span>
-      <span class="text-2xl font-black text-slate-900 font-mono"><%= @metrics[:memory] %></span>
-      <span class="text-xs text-violet-600 font-semibold flex items-center gap-1">🟢 Allocations optimized</span>
-    </div>
-
-    <div class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2 relative overflow-hidden group">
-      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all"></div>
-      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registry SQL Disk</span>
-      <span class="text-2xl font-black text-slate-900 font-mono"><%= @metrics[:disk] %></span>
-      <span class="text-xs text-cyan-600 font-semibold flex items-center gap-1">🟢 Healthy read/write</span>
-    </div>
-
-    <div class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2 relative overflow-hidden group">
-      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all"></div>
-      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registry Gateway</span>
-      <span class="text-2xl font-black <%= @status_secured ? 'text-emerald-600' : 'text-rose-600' %>"><%= @metrics[:health] %></span>
-      <span class="text-xs text-slate-500 font-semibold flex items-center gap-1">
-        API status: <%= @system_status["status"] %>
-      </span>
     </div>
   </div>
 
