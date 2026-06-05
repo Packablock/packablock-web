@@ -55,17 +55,17 @@
         <div class="flex justify-between items-center text-sm border-t border-slate-100 pt-4 mt-2">
           <span class="text-xs text-slate-500">Premium Account Tier:</span>
           <% if @repository["is_premium"] == 1 %>
-            <span class="text-xs font-bold px-2 py-0.5 rounded border border-violet-200 bg-violet-50 text-violet-700 uppercase">Active Premium</span>
+            <span class="text-xs font-bold px-2 py-0.5 rounded border border-blue-200 bg-blue-50 text-blue-700 uppercase">Active Premium</span>
           <% else %>
             <span class="text-xs font-bold px-2 py-0.5 rounded border border-slate-200 bg-slate-100 text-slate-700 uppercase">Standard Tier</span>
           <% end %>
         </div>
         <% if @repository["is_premium"] != 1 %>
-          <p class="text-[10px] text-violet-600 italic mt-1">💡 Upstream SemVer release tracking & drift detection are locked on Standard Tier.</p>
+          <p class="text-[10px] text-blue-600 italic mt-1">💡 Upstream SemVer release tracking & drift detection are locked on Standard Tier.</p>
         <% end %>
 
         <div class="flex gap-3 border-t border-slate-100 pt-4 mt-2">
-          <%= button_to "Toggle Premium Access", toggle_premium_repository_path(@repository["id"]), method: :post, class: "flex-1 py-2.5 rounded-lg border border-violet-200 bg-violet-50 text-violet-600 font-bold text-xs cursor-pointer hover:bg-violet-600 hover:text-white transition-all uppercase tracking-wider" %>
+          <%= button_to "Toggle Premium Access", toggle_premium_repository_path(@repository["id"]), method: :post, class: "flex-1 py-2.5 rounded-lg border border-blue-200 bg-blue-50 text-blue-600 font-bold text-xs cursor-pointer hover:bg-blue-600 hover:text-white transition-all uppercase tracking-wider" %>
           <%= button_to "Revoke Auth Token", revoke_repository_path(@repository["id"]), method: :post, data: { confirm: "Are you sure you want to permanently revoke this repository token?" }, class: "flex-1 py-2.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-600 font-bold text-xs cursor-pointer hover:bg-rose-600 hover:text-white transition-all uppercase tracking-wider" unless @repository["registration_token"].start_with?("pb_revoked_") %>
         </div>
       </div>
@@ -356,7 +356,7 @@
           </div>
         `;
       } else {
-        const badge = node.identityBadge ? `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded border border-violet-200 bg-violet-50 text-violet-700 uppercase">${node.identityBadge}</span>` : `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded border border-slate-200 bg-slate-100 text-slate-700 uppercase">Raw Push</span>`;
+        const badge = node.identityBadge ? `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded border border-blue-200 bg-blue-50 text-blue-700 uppercase">${node.identityBadge}</span>` : `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded border border-slate-200 bg-slate-100 text-slate-700 uppercase">Raw Push</span>`;
         
         inspector.innerHTML = `
           <div class="flex flex-col gap-4">
@@ -533,7 +533,7 @@
         item.id = `block-card-${node.epoch_index}-${node.block_index}`;
         item.className = "border-b border-slate-200 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0 flex flex-col gap-3 relative group transition-all duration-300";
 
-        const badge = node.identityBadge ? `<span class="text-[8px] font-bold px-1.5 py-0.2 rounded border border-violet-200 bg-violet-50 text-violet-700 uppercase tracking-wider">${node.identityBadge}</span>` : '';
+        const badge = node.identityBadge ? `<span class="text-[8px] font-bold px-1.5 py-0.2 rounded border border-blue-200 bg-blue-50 text-blue-700 uppercase tracking-wider">${node.identityBadge}</span>` : '';
 
         item.innerHTML = `
           <!-- Block Header line styled as a YAML comment/divider -->
@@ -661,11 +661,11 @@
                 card.scrollIntoView({ behavior: 'auto', block: 'start' });
                 
                 // Highlight active block card visually
-                card.classList.add("bg-indigo-50/50");
-                card.style.outline = "2px solid #4f46e5";
+                card.classList.add("bg-blue-50/50");
+                card.style.outline = "2px solid #2563eb";
                 card.style.outlineOffset = "2px";
                 setTimeout(() => {
-                  card.classList.remove("bg-indigo-50/50");
+                  card.classList.remove("bg-blue-50/50");
                   card.style.outline = "none";
                 }, 1500);
               }
@@ -677,9 +677,9 @@
                 tlRow.scrollIntoView({ behavior: 'auto', block: 'center' });
                 
                 // Highlight the timeline row
-                tlRow.classList.add("bg-indigo-50/80");
+                tlRow.classList.add("bg-blue-50/80");
                 setTimeout(() => {
-                  tlRow.classList.remove("bg-indigo-50/80");
+                  tlRow.classList.remove("bg-blue-50/80");
                 }, 1500);
               }
             });
@@ -873,11 +873,11 @@
                     const card = document.getElementById(`block-card-${firstBlock.epoch_index}-${firstBlock.block_index}`);
                     if (card) {
                       card.scrollIntoView({ behavior: 'auto', block: 'start' });
-                      card.classList.add("bg-indigo-50/50");
-                      card.style.outline = "2px solid #4f46e5";
+                      card.classList.add("bg-blue-50/50");
+                      card.style.outline = "2px solid #2563eb";
                       card.style.outlineOffset = "2px";
                       setTimeout(() => {
-                        card.classList.remove("bg-indigo-50/50");
+                        card.classList.remove("bg-blue-50/50");
                         card.style.outline = "none";
                       }, 1500);
                     }
@@ -916,7 +916,7 @@
           return `<span class="text-slate-400 italic">${comment}</span>`;
         }
         if (key) {
-          return `${indent}<span class="text-indigo-700 font-semibold">${key}</span>${colon}`;
+          return `${indent}<span class="text-blue-700 font-semibold">${key}</span>${colon}`;
         }
         if (dstr) {
           return `<span class="text-emerald-600 font-medium">${dstr}</span>`;
