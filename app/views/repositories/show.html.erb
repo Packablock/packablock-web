@@ -1,3 +1,14 @@
+<style>
+  #chain-minimap::-webkit-scrollbar,
+  #chain-minimap > div::-webkit-scrollbar {
+    display: none;
+  }
+  #chain-minimap,
+  #chain-minimap > div {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
 <div class="flex flex-col gap-8 w-full">
   <!-- Title / Breadcrumbs -->
   <div class="flex justify-between items-start flex-wrap gap-4">
@@ -137,15 +148,23 @@
         </div>
       </div>
 
-      <!-- Scrollable Ledger Content -->
-      <div class="flex-1 overflow-y-auto bg-slate-50/50 p-6 font-mono text-xs text-slate-800 leading-relaxed shadow-inner" id="yaml-list-content">
-        <div class="text-center py-12 text-xs text-slate-400 italic">Loading ledger blocks...</div>
+      <!-- Scrollable Ledger Content and Minimap Container -->
+      <div class="flex-1 flex flex-row overflow-hidden relative">
+        <!-- Scrollable Ledger Content -->
+        <div class="flex-1 overflow-y-auto bg-slate-50/50 p-6 font-mono text-xs text-slate-800 leading-relaxed shadow-inner" id="yaml-list-content">
+          <div class="text-center py-12 text-xs text-slate-400 italic">Loading ledger blocks...</div>
+        </div>
+        <!-- Chain Minimap Container -->
+        <div id="chain-minimap" class="border-l border-slate-200 bg-slate-50/30 flex flex-row select-none relative overflow-x-auto overflow-y-hidden flex-shrink-0" style="scrollbar-width: none; -ms-overflow-style: none;">
+          <!-- Slices will be injected here -->
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
 <script>
   function copyToken() {
     const copyText = document.getElementById("token-copy-field");
@@ -381,18 +400,98 @@
         return;
       }
 
-      // Filter out root nodes (Genesis Anchor) and reverse chronological order
-      const blocksOnly = nodes.filter(n => n.type !== "root").reverse();
+      // Filter out root nodes (Genesis Anchor) and sort in chronological order (oldest on top)
+      const blocksOnly = nodes.filter(n => n.type !== "root").sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
       if (blocksOnly.length === 0) {
         container.innerHTML = `<div class="text-center py-12 text-xs text-slate-500 italic">No blocks found in ledger lineage.</div>`;
         return;
       }
 
+      // Calculate min and max line counts for >0 counts
+      let maxLines = 0;
+      let minLines = Infinity;
+      blocksOnly.forEach((node) => {
+        const lineCount = (node.data_payload || "").split("\n").length;
+        if (lineCount > 0) {
+          if (lineCount > maxLines) maxLines = lineCount;
+          if (lineCount < minLines) minLines = lineCount;
+        }
+      });
+      if (minLines === Infinity) {
+        minLines = 0;
+      }
+
+      // Group blocks by epoch and assign epoch indices
+      const epochs = [];
+      let currentEpochBlocks = [];
+      let epochIdx = 0;
+      
+      blocksOnly.forEach((node) => {
+        if (node.type === "rollover" && currentEpochBlocks.length > 0) {
+          epochs.push(currentEpochBlocks);
+          currentEpochBlocks = [];
+          epochIdx++;
+        }
+        node.epoch_index = epochIdx;
+        currentEpochBlocks.push(node);
+      });
+      if (currentEpochBlocks.length > 0) {
+        epochs.push(currentEpochBlocks);
+      }
+
+      function getManifestColors(manifest) {
+        const name = (manifest || "").toLowerCase();
+        if (name.includes("package-lock")) {
+          return {
+            bg: "rgba(16, 185, 129, 0.04)",
+            border: "#10b981",
+            dot: "#10b981",
+            label: "npm"
+          };
+        } else if (name.includes("bun")) {
+          return {
+            bg: "rgba(139, 92, 246, 0.04)",
+            border: "#8b5cf6",
+            dot: "#8b5cf6",
+            label: "bun"
+          };
+        } else if (name.includes("yarn")) {
+          return {
+            bg: "rgba(14, 165, 233, 0.04)",
+            border: "#0ea5e9",
+            dot: "#0ea5e9",
+            label: "yarn"
+          };
+        } else if (name.includes("pnpm")) {
+          return {
+            bg: "rgba(245, 158, 11, 0.04)",
+            border: "#f59e0b",
+            dot: "#f59e0b",
+            label: "pnpm"
+          };
+        } else {
+          return {
+            bg: "rgba(100, 116, 139, 0.04)",
+            border: "#64748b",
+            dot: "#64748b",
+            label: "raw"
+          };
+        }
+      }
+
       container.innerHTML = "";
-      blocksOnly.forEach((node, idx) => {
+      
+      const minimap = document.getElementById("chain-minimap");
+      if (minimap) {
+        minimap.innerHTML = "";
+      }
+
+      // 1. Render all block cards in the main container
+      blocksOnly.forEach((node) => {
         const item = document.createElement("div");
-        item.className = "border-b border-slate-200 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0 flex flex-col gap-3 relative group";
+        item.id = `block-card-${node.epoch_index}-${node.block_index}`;
+        item.className = "border-b border-slate-200 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0 flex flex-col gap-3 relative group transition-all duration-300";
 
         const badge = node.identityBadge ? `<span class="text-[8px] font-bold px-1.5 py-0.2 rounded border border-violet-200 bg-violet-50 text-violet-700 uppercase tracking-wider">${node.identityBadge}</span>` : '';
 
@@ -401,7 +500,7 @@
           <div class="flex justify-between items-center text-[10px] text-slate-400 font-mono border-b border-slate-100 pb-1.5 mb-1 select-none">
             <div class="flex items-center gap-2">
               <span class="text-emerald-600 font-bold">---</span>
-              <span class="text-slate-700 font-bold"># BLOCK #${node.block_index}</span>
+              <span class="text-slate-700 font-bold"># BLOCK #${node.block_index} (EPOCH ${node.epoch_index})</span>
               <span class="text-slate-400">(${node.meta_hash.slice(0, 12)}...)</span>
               <span class="text-slate-400">${new Date(node.timestamp).toLocaleString()}</span>
               ${node.type === 'rollover' ? '<span class="text-amber-600 font-bold uppercase text-[9px]">[ROLLOVER]</span>' : ''}
@@ -433,6 +532,134 @@
         `;
         container.appendChild(item);
       });
+
+      // 2. Render epoch columns in the minimap
+      if (minimap) {
+        epochs.forEach((epochBlocks, epochIdx) => {
+          const epochCol = document.createElement("div");
+          epochCol.className = "w-16 flex flex-col select-none overflow-y-auto divide-y divide-slate-100 flex-shrink-0";
+          epochCol.style.minWidth = "64px";
+          epochCol.style.scrollbarWidth = "none";
+          epochCol.style.msOverflowStyle = "none";
+
+          const header = document.createElement("div");
+          header.className = "bg-slate-100/80 backdrop-blur-sm border-b border-slate-200 text-[8px] font-bold font-mono text-center py-1.5 text-slate-500 uppercase select-none sticky top-0 z-10 tracking-wider";
+          header.innerText = `EPOCH ${epochIdx}`;
+          epochCol.appendChild(header);
+
+          epochBlocks.forEach((node) => {
+            const lines = (node.data_payload || "").split("\n");
+            const lineCount = lines.length;
+
+            let manifest = "other";
+            let manifestCount = 0;
+            try {
+              const parsedData = jsyaml.load(node.data_payload);
+              if (parsedData && typeof parsedData === "object") {
+                const systemKeys = [
+                  "chain_event", "genesis_rollover", "genesis_key", 
+                  "rollover_reason", "rollover_authority", "previous_epoch", 
+                  "lockfiles", "step"
+                ];
+                const rootKeys = Object.keys(parsedData).filter(k => !systemKeys.includes(k));
+                
+                const lockfilesKeys = [];
+                if (parsedData.lockfiles && typeof parsedData.lockfiles === "object") {
+                  lockfilesKeys.push(...Object.keys(parsedData.lockfiles));
+                }
+
+                const allKeys = [...new Set([...rootKeys, ...lockfilesKeys])];
+                manifestCount = allKeys.length;
+                if (allKeys.length > 0) {
+                  // Prefer showing a lockfile/manifest over other files as the primary tag
+                  const primary = allKeys.find(k => k.endsWith(".json") || k.endsWith(".lockb") || k.endsWith(".yaml") || k.endsWith(".toml")) || allKeys[0];
+                  manifest = primary;
+                }
+              }
+            } catch(e) {}
+
+            const colors = getManifestColors(manifest);
+            
+            const slice = document.createElement("div");
+            slice.className = "cursor-pointer transition-all hover:brightness-95 select-none";
+            slice.style.display = "flex";
+            slice.style.flexDirection = "column";
+            slice.style.alignItems = "center";
+            slice.style.justifyContent = "center";
+            slice.style.gap = "2px";
+            slice.style.padding = "2px";
+            slice.style.boxSizing = "border-box";
+            slice.style.backgroundColor = colors.bg;
+            slice.style.borderLeft = `3px solid ${colors.border}`;
+            slice.style.height = "26px";
+            slice.title = `Epoch ${epochIdx} - Block #${node.block_index}\nTracked Manifests: ${manifestCount}\nPrimary: ${manifest}\nLines: ${lineCount}`;
+
+            const dotsContainer = document.createElement("div");
+            dotsContainer.style.display = "flex";
+            dotsContainer.style.flexDirection = "row";
+            dotsContainer.style.gap = "1.5px";
+            
+            const totalDots = 8;
+            let activeDots = 0;
+            if (lineCount > 0) {
+              if (maxLines === minLines) {
+                activeDots = 8;
+              } else if (lineCount === minLines) {
+                activeDots = 1;
+              } else if (lineCount === maxLines) {
+                activeDots = 8;
+              } else {
+                const ratio = (lineCount - minLines) / (maxLines - minLines);
+                activeDots = 2 + Math.min(5, Math.floor(ratio * 6));
+              }
+            }
+            
+            for (let i = 0; i < totalDots; i++) {
+              const dot = document.createElement("div");
+              dot.style.width = "4px";
+              dot.style.height = "4px";
+              dot.style.borderRadius = "0.5px";
+              if (i < activeDots) {
+                dot.style.backgroundColor = colors.dot;
+              } else {
+                dot.style.backgroundColor = "rgba(15, 23, 42, 0.12)"; // clearly visible but inactive
+              }
+              dotsContainer.appendChild(dot);
+            }
+            slice.appendChild(dotsContainer);
+
+            const formatLabel = document.createElement("span");
+            formatLabel.style.fontSize = "7.5px";
+            formatLabel.style.lineHeight = "1";
+            formatLabel.style.color = "#94a3b8"; // Slate 400
+            formatLabel.style.textTransform = "uppercase";
+            formatLabel.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+            formatLabel.style.userSelect = "none";
+            formatLabel.innerText = colors.label;
+            slice.appendChild(formatLabel);
+
+            slice.addEventListener("click", () => {
+              const card = document.getElementById(`block-card-${epochIdx}-${node.block_index}`);
+              if (card) {
+                card.scrollIntoView({ behavior: 'auto', block: 'start' });
+                
+                // Highlight active block card visually
+                card.classList.add("bg-indigo-50/50");
+                card.style.outline = "2px solid #4f46e5";
+                card.style.outlineOffset = "2px";
+                setTimeout(() => {
+                  card.classList.remove("bg-indigo-50/50");
+                  card.style.outline = "none";
+                }, 1500);
+              }
+            });
+
+            epochCol.appendChild(slice);
+          });
+
+          minimap.appendChild(epochCol);
+        });
+      }
     }
 
     function escapeHtml(str) {
