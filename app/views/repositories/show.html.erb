@@ -608,6 +608,7 @@
             slice.style.backgroundColor = colors.bg;
             slice.style.borderLeft = `3px solid ${colors.border}`;
             slice.style.height = `${rowHeight}px`;
+            slice.style.flexShrink = "0";
             slice.title = `Epoch ${epochIdx} - Block #${node.block_index}\nTracked Manifests: ${manifestCount}\nPrimary: ${manifest}\nLines: ${lineCount}`;
 
             const dotsContainer = document.createElement("div");
@@ -786,6 +787,7 @@
             row.id = `timeline-row-${dayStr}`;
             row.className = "flex items-center hover:bg-slate-50/50 px-2 py-1 gap-2 border-b border-slate-100/50 transition-colors";
             row.style.height = `${rowHeight}px`;
+            row.style.flexShrink = "0";
             row.style.boxSizing = "border-box";
 
             // Format date label (e.g. "Jun 5")
