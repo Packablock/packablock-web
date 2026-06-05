@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Packablock CLI avatar">
+  <rect width="1024" height="1024" fill="#0E1B2E"/>
+  <g transform="translate(212,212) scale(5)">
+    <polyline points="34,40 58,60 34,80" fill="none" stroke="#22D3EE" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="68" y="48" width="16" height="24" rx="4" fill="#22D3EE"/>
+  </g>
+</svg>

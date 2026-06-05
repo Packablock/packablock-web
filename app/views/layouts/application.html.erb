@@ -22,18 +22,24 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
   </head>
 
-  <body class="bg-[#0b0f19] text-[#f9fafb] min-h-screen flex flex-col font-sans antialiased">
+  <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased">
     <% if admin_signed_in? %>
-      <header class="border-b border-[#1f2937] bg-[#0b0f19]/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
-        <a href="<%= dashboard_path %>" class="flex items-center gap-2 font-black text-lg tracking-wider text-white uppercase hover:opacity-90">
-          <span class="w-2.5 h-2.5 rounded-full bg-[#10b981] inline-block animate-pulse"></span>
+      <header class="border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4 flex justify-between items-center">
+        <a href="<%= dashboard_path %>" class="flex items-center gap-2.5 font-black text-lg tracking-wider text-slate-900 uppercase hover:opacity-90">
+          <svg class="w-6 h-6 text-[#10b981]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" stroke="none" role="img" aria-label="Packablock registry mark">
+            <line x1="40" y1="36" x2="40" y2="84" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+            <circle cx="40" cy="42" r="6" fill="currentColor"/><circle cx="40" cy="60" r="6" fill="currentColor"/><circle cx="40" cy="78" r="6" fill="currentColor"/>
+            <rect x="50" y="36.5" width="42" height="11" rx="4" fill="currentColor"/>
+            <rect x="50" y="54.5" width="28" height="11" rx="4" fill="currentColor"/>
+            <rect x="50" y="72.5" width="36" height="11" rx="4" fill="currentColor"/>
+          </svg>
           Packablock <span class="font-mono text-[#10b981] text-sm font-medium">[registry-web]</span>
         </a>
         <nav class="flex items-center gap-6">
-          <%= link_to "Dashboard", dashboard_path, class: "text-sm font-semibold text-gray-400 hover:text-white transition-colors" %>
-          <%= link_to "Create Project", new_project_path, class: "text-sm font-semibold text-gray-400 hover:text-white transition-colors" %>
+          <%= link_to "Dashboard", dashboard_path, class: "text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors" %>
+          <%= link_to "Create Project", new_project_path, class: "text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors" %>
           
-          <div class="h-4 w-px bg-[#1f2937]"></div>
+          <div class="h-4 w-px bg-slate-200"></div>
           
           <div class="flex items-center gap-2">
             <span class="text-xs font-semibold px-2 py-0.5 rounded border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 text-[#8b5cf6] uppercase">Root Admin</span>
@@ -46,12 +52,12 @@
     <% if notice.present? || alert.present? %>
       <div class="max-w-7xl mx-auto w-full px-6 mt-4">
         <% if notice.present? %>
-          <div class="p-4 rounded-lg bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] text-sm font-medium flex items-center gap-2 shadow-lg shadow-[#10b981]/5">
+          <div class="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center gap-2 shadow-sm">
             <span class="text-lg">✓</span> <%= notice %>
           </div>
         <% end %>
         <% if alert.present? %>
-          <div class="p-4 rounded-lg bg-[#ef4444]/10 border border-[#ef4444]/20 text-[#ef4444] text-sm font-medium flex items-center gap-2 shadow-lg shadow-[#ef4444]/5">
+          <div class="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-sm font-medium flex items-center gap-2 shadow-sm">
             <span class="text-lg">⚠</span> <%= alert %>
           </div>
         <% end %>
@@ -62,10 +68,10 @@
       <%= yield %>
     </main>
 
-    <footer class="border-t border-[#1f2937] py-6 text-center text-xs text-gray-500 bg-[#111827]/30 mt-auto">
+    <footer class="border-t border-slate-200 py-6 text-center text-xs text-slate-500 bg-white mt-auto">
       <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <span>© 2026 Packablock Inc. All rights reserved.</span>
-        <span class="font-mono text-gray-400">Registry Web Platform v1.0.0</span>
+        <span class="font-mono text-slate-600">Registry Web Platform v1.0.0</span>
       </div>
     </footer>
   </body>

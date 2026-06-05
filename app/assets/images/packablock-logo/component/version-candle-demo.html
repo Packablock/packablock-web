@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Packablock version-candle demo</title>
+<style>
+  body { margin: 0; background: #0E1B2E; color: #E6EDF3; font: 14px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace; padding: 32px; }
+  .panel { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 16px; font-weight: 500; color: #9FE9F2; margin: 0 0 4px; }
+  p.note { color: #7E8B98; margin: 0 0 24px; font-size: 12px; }
+  .row { display: grid; grid-template-columns: 104px 64px 200px 70px 80px; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .name { color: #E6EDF3; }
+  .min, .max { color: #7E8B98; font-size: 12px; }
+  .min { text-align: right; }
+  .cur { color: #9FE9F2; font-size: 12px; text-align: right; }
+</style>
+</head>
+<body>
+<div class="panel">
+  <h1>packablock &middot; version ranges</h1>
+  <p class="note">left node = lowest &middot; body = recent drift &middot; right node = highest allowed. node spacing shows range width.</p>
+  <div id="list"></div>
+</div>
+
+<script>
+const ACCENT = "#22D3EE";
+
+function versionToNumber(v) {
+  const cleaned = String(v).replace(/^[^\d]*/, "");
+  const [maj = 0, min = 0, pat = 0] = cleaned.split(".").map(n => parseInt(n, 10) || 0);
+  return maj * 1e6 + min * 1e3 + pat;
+}
+
+function candle({ min, max, driftFrom, driftTo, current, width = 200, height = 20, color = ACCENT }) {
+  const lo = versionToNumber(min), hi = versionToNumber(max), span = (hi - lo) || 1;
+  const pad = height / 2, usable = width - pad * 2, cy = height / 2;
+  const nodeR = Math.max(3, height * 0.3), bodyH = Math.max(6, height * 0.6), bodyR = bodyH / 3;
+  const clamp = p => Math.max(pad, Math.min(width - pad, p));
+  const pos = v => clamp(pad + ((versionToNumber(v) - lo) / span) * usable);
+  const x1 = pad, x2 = width - pad;
+  let bFrom, bTo;
+  if (driftFrom != null && driftTo != null) { bFrom = pos(driftFrom); bTo = pos(driftTo); }
+  else if (current != null) { const c = pos(current); bFrom = c - 14; bTo = c + 14; }
+  else { const m = (x1 + x2) / 2; bFrom = m - 14; bTo = m + 14; }
+  const bx = clamp(Math.min(bFrom, bTo));
+  const bw = Math.max(bodyH, Math.min(x2, Math.max(bFrom, bTo)) - bx);
+  return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="range ${min} to ${max}">
+    <line x1="${x1}" y1="${cy}" x2="${x2}" y2="${cy}" stroke="${color}" stroke-width="${height*0.2}" stroke-linecap="round"/>
+    <rect x="${bx}" y="${cy-bodyH/2}" width="${bw}" height="${bodyH}" rx="${bodyR}" fill="${color}"/>
+    <circle cx="${x1}" cy="${cy}" r="${nodeR}" fill="${color}"/>
+    <circle cx="${x2}" cy="${cy}" r="${nodeR}" fill="${color}"/>
+  </svg>`;
+}
+
+const packages = [
+  { name: "lodash",  min: "4.0.0",  max: "5.0.0",  driftFrom: "4.14.0", driftTo: "4.17.21", current: "4.17.21" },
+  { name: "react",   min: "18.0.0", max: "19.0.0", driftFrom: "18.0.0", driftTo: "18.2.0",  current: "18.2.0"  },
+  { name: "express", min: "4.18.0", max: "4.19.0", driftFrom: "4.18.1", driftTo: "4.18.2",  current: "4.18.2"  },
+  { name: "typescript", min: "5.0.0", max: "6.0.0", driftFrom: "5.2.0", driftTo: "5.4.5",   current: "5.4.5"   },
+];
+
+document.getElementById("list").innerHTML = packages.map(p => `
+  <div class="row">
+    <span class="name">${p.name}</span>
+    <span class="min">${p.min}</span>
+    ${candle(p)}
+    <span class="max">&lt;${p.max}</span>
+    <span class="cur">${p.current}</span>
+  </div>`).join("");
+</script>
+</body>
+</html>

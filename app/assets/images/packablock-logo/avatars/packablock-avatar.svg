@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Packablock avatar">
+  <rect x="0" y="0" width="1024" height="1024" fill="#0E1B2E"/>
+  <g transform="translate(212,212) scale(5)">
+    <line x1="60" y1="24" x2="60" y2="96" stroke="#22D3EE" stroke-width="7" stroke-linecap="round"/>
+    <rect x="37" y="42" width="46" height="36" rx="9" fill="#22D3EE"/>
+    <circle cx="60" cy="24" r="9" fill="#22D3EE"/>
+    <circle cx="60" cy="96" r="9" fill="#22D3EE"/>
+  </g>
+</svg>

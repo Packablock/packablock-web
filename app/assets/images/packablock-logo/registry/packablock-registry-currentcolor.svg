@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Packablock registry mark">
+  <line x1="40" y1="36" x2="40" y2="84" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="40" cy="42" r="6" fill="currentColor"/><circle cx="40" cy="60" r="6" fill="currentColor"/><circle cx="40" cy="78" r="6" fill="currentColor"/>
+  <rect x="50" y="36.5" width="42" height="11" rx="4" fill="currentColor"/>
+  <rect x="50" y="54.5" width="28" height="11" rx="4" fill="currentColor"/>
+  <rect x="50" y="72.5" width="36" height="11" rx="4" fill="currentColor"/>
+</svg>
