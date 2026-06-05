@@ -26,21 +26,21 @@
     <div class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2 relative overflow-hidden group">
       <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all"></div>
       <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Core CPU</span>
-      <span class="text-2xl font-black text-slate-900"><%= @metrics[:cpu] %></span>
+      <span class="text-2xl font-black text-slate-900 font-mono"><%= @metrics[:cpu] %></span>
       <span class="text-xs text-emerald-600 font-semibold flex items-center gap-1">🟢 Low utilization</span>
     </div>
 
     <div class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2 relative overflow-hidden group">
       <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-violet-500/5 rounded-full blur-xl group-hover:bg-violet-500/10 transition-all"></div>
       <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Memory Allocation</span>
-      <span class="text-2xl font-black text-slate-900"><%= @metrics[:memory] %></span>
+      <span class="text-2xl font-black text-slate-900 font-mono"><%= @metrics[:memory] %></span>
       <span class="text-xs text-violet-600 font-semibold flex items-center gap-1">🟢 Allocations optimized</span>
     </div>
 
     <div class="p-6 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col gap-2 relative overflow-hidden group">
       <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all"></div>
       <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Registry SQL Disk</span>
-      <span class="text-2xl font-black text-slate-900"><%= @metrics[:disk] %></span>
+      <span class="text-2xl font-black text-slate-900 font-mono"><%= @metrics[:disk] %></span>
       <span class="text-xs text-cyan-600 font-semibold flex items-center gap-1">🟢 Healthy read/write</span>
     </div>
 
