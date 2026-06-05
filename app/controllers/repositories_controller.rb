@@ -1,7 +1,7 @@
 class RepositoriesController < ApplicationController
   before_action :authenticate_admin!
-  before_action :authorize_repository_access!, only: [:show, :tree, :candlesticks, :toggle_premium, :revoke]
-  before_action :authorize_superuser!, only: [:purge_stale]
+  before_action :authorize_repository_access!, only: [ :show, :tree, :candlesticks, :toggle_premium, :revoke ]
+  before_action :authorize_superuser!, only: [ :purge_stale ]
 
   def show
     client = PackablockCore::Client.new
@@ -98,13 +98,13 @@ class RepositoriesController < ApplicationController
       repos_data = client.list_repos
       all_repos = repos_data["repos"] || []
       repo = all_repos.find { |r| r["id"] == params[:id].to_i }
-      
+
       if repo.nil?
         redirect_to dashboard_path, alert: "Repository not found."
         return
       end
 
-      org_name = current_admin.email.split('@').last.split('.').first
+      org_name = current_admin.email.split("@").last.split(".").first
       unless repo["owner"] == org_name
         redirect_to dashboard_path, alert: "Access denied: Repository belongs to a different organization."
       end
