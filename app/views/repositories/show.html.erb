@@ -114,6 +114,35 @@
       </div>
     </div>
   </div>
+
+  <!-- YAML Block Payloads Panel -->
+  <div class="flex flex-col gap-4" id="yaml-payloads-panel">
+    <div>
+      <h3 class="text-xl font-bold text-slate-900">YAML Block Payload Explorer</h3>
+      <p class="text-xs text-slate-500">Shows the complete, raw cryptographically signed YAML payloads (Data and Metadata) of every block in the ledger chain.</p>
+    </div>
+
+    <div class="border border-slate-200 rounded-xl bg-white shadow-sm flex flex-col overflow-hidden" style="height: 550px;">
+      <!-- Terminal Window Header (Light) -->
+      <div class="bg-slate-50 border-b border-slate-200 px-4 py-3 flex justify-between items-center select-none flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-rose-500/80"></span>
+          <span class="w-3 h-3 rounded-full bg-amber-500/80"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+          <span class="text-xs font-mono text-slate-600 ml-2 font-bold"><%= @repository["owner"] %>/<%= @repository["repo"] %>.yaml</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Signed Ledger Stream</span>
+          <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-700 font-mono">SECURE</span>
+        </div>
+      </div>
+
+      <!-- Scrollable Ledger Content -->
+      <div class="flex-1 overflow-y-auto bg-slate-50/50 p-6 font-mono text-xs text-slate-800 leading-relaxed shadow-inner" id="yaml-list-content">
+        <div class="text-center py-12 text-xs text-slate-400 italic">Loading ledger blocks...</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
@@ -156,6 +185,7 @@
         if (loading) loading.style.display = "none";
         if (data.success && data.tree) {
           renderLineageTree(data.tree);
+          renderYamlPayloadsList(data.graph ? data.graph.nodes : []);
         } else {
           showError("Registry has no package history log initialized yet.");
         }
@@ -168,6 +198,10 @@
     function showError(message) {
       svg.html("");
       inspector.innerHTML = `<div class="text-center py-12 text-xs text-slate-400 italic">Audit tree unavailable.</div>`;
+      const yamlContainer = document.getElementById("yaml-list-content");
+      if (yamlContainer) {
+        yamlContainer.innerHTML = `<div class="text-center py-12 text-xs text-slate-400 italic">Audit logs unavailable.</div>`;
+      }
       const g = svg.append("g")
         .attr("transform", "translate(40, 260)");
       g.append("text")
@@ -337,5 +371,143 @@
         `;
       }
     }
+
+    function renderYamlPayloadsList(nodes) {
+      const container = document.getElementById("yaml-list-content");
+      if (!container) return;
+
+      if (!nodes || nodes.length === 0) {
+        container.innerHTML = `<div class="text-center py-12 text-xs text-slate-500 italic">No package history log initialized yet.</div>`;
+        return;
+      }
+
+      // Filter out root nodes (Genesis Anchor) and reverse chronological order
+      const blocksOnly = nodes.filter(n => n.type !== "root").reverse();
+
+      if (blocksOnly.length === 0) {
+        container.innerHTML = `<div class="text-center py-12 text-xs text-slate-500 italic">No blocks found in ledger lineage.</div>`;
+        return;
+      }
+
+      container.innerHTML = "";
+      blocksOnly.forEach((node, idx) => {
+        const item = document.createElement("div");
+        item.className = "border-b border-slate-200 pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0 flex flex-col gap-3 relative group";
+
+        const badge = node.identityBadge ? `<span class="text-[8px] font-bold px-1.5 py-0.2 rounded border border-violet-200 bg-violet-50 text-violet-700 uppercase tracking-wider">${node.identityBadge}</span>` : '';
+
+        item.innerHTML = `
+          <!-- Block Header line styled as a YAML comment/divider -->
+          <div class="flex justify-between items-center text-[10px] text-slate-400 font-mono border-b border-slate-100 pb-1.5 mb-1 select-none">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-600 font-bold">---</span>
+              <span class="text-slate-700 font-bold"># BLOCK #${node.block_index}</span>
+              <span class="text-slate-400">(${node.meta_hash.slice(0, 12)}...)</span>
+              <span class="text-slate-400">${new Date(node.timestamp).toLocaleString()}</span>
+              ${node.type === 'rollover' ? '<span class="text-amber-600 font-bold uppercase text-[9px]">[ROLLOVER]</span>' : ''}
+              ${badge}
+            </div>
+            <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+              <button onclick="copyDataText(this)" class="text-slate-400 hover:text-slate-700 text-[10px] cursor-pointer hover:underline bg-transparent border-0 p-0">Copy Data</button>
+              <button onclick="copyMetaText(this)" class="text-slate-400 hover:text-slate-700 text-[10px] cursor-pointer hover:underline bg-transparent border-0 p-0">Copy Metadata</button>
+            </div>
+          </div>
+
+          <!-- Data Payload (always expanded) -->
+          <div class="pl-4 border-l-2 border-slate-200 text-slate-800 data-payload-container">
+            <pre class="bg-transparent text-slate-800 font-mono text-xs overflow-x-auto whitespace-pre-wrap select-text leading-relaxed">${highlightYaml(node.data_payload)}</pre>
+          </div>
+
+          <!-- Meta Payload (collapsed by default) -->
+          <div class="mt-2 pl-4 border-l-2 border-slate-200 flex flex-col gap-2">
+            <!-- Collapsible Trigger -->
+            <button onclick="toggleMetaSection(this)" class="text-[10px] text-slate-400 hover:text-slate-600 font-mono flex items-center gap-1.5 focus:outline-none cursor-pointer w-fit select-none bg-transparent border-0 p-0">
+              <span class="transform transition-transform duration-150 inline-block font-bold">▶</span>
+              <span class="font-bold"># view verification metadata</span>
+            </button>
+            <!-- Collapsible Content -->
+            <div class="hidden mt-1 pl-3 border-l border-slate-200/60 meta-payload-container">
+              <pre class="bg-slate-100/70 text-slate-600 font-mono text-[10px] p-2.5 rounded border border-slate-200 overflow-x-auto whitespace-pre-wrap select-text leading-normal">${highlightYaml(node.meta_payload)}</pre>
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function highlightYaml(yaml) {
+      if (!yaml) return "";
+      let html = escapeHtml(yaml);
+
+      const regex = /(#[^\n]*)|(^[ \t]*(?:-\s*)?)([a-zA-Z0-9_.\-\/]+)(:)|(&quot;.*?&quot;)|(&#039;.*?&#039;)|\b(true|false|null)\b|\b(\d+(?:\.\d+)?)\b/gm;
+
+      html = html.replace(regex, (match, comment, indent, key, colon, dstr, sstr, val, num) => {
+        if (comment) {
+          return `<span class="text-slate-400 italic">${comment}</span>`;
+        }
+        if (key) {
+          return `${indent}<span class="text-indigo-700 font-semibold">${key}</span>${colon}`;
+        }
+        if (dstr) {
+          return `<span class="text-emerald-600 font-medium">${dstr}</span>`;
+        }
+        if (sstr) {
+          return `<span class="text-emerald-600 font-medium">${sstr}</span>`;
+        }
+        if (val) {
+          return `<span class="text-amber-600 font-bold">${val}</span>`;
+        }
+        if (num) {
+          return `<span class="text-sky-600">${num}</span>`;
+        }
+        return match;
+      });
+
+      return html;
+    }
+
+    window.copyDataText = function(btn) {
+      const container = btn.closest(".group");
+      const pre = container.querySelector(".data-payload-container pre");
+      if (!pre) return;
+      navigator.clipboard.writeText(pre.textContent).then(() => {
+        const orig = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => { btn.innerText = orig; }, 1500);
+      });
+    };
+
+    window.copyMetaText = function(btn) {
+      const container = btn.closest(".group");
+      const pre = container.querySelector(".meta-payload-container pre");
+      if (!pre) return;
+      navigator.clipboard.writeText(pre.textContent).then(() => {
+        const orig = btn.innerText;
+        btn.innerText = 'Copied!';
+        setTimeout(() => { btn.innerText = orig; }, 1500);
+      });
+    };
+
+    window.toggleMetaSection = function(btn) {
+      const content = btn.nextElementSibling;
+      const arrow = btn.querySelector("span");
+      if (content.classList.contains("hidden")) {
+        content.classList.remove("hidden");
+        arrow.style.transform = "rotate(90deg)";
+      } else {
+        content.classList.add("hidden");
+        arrow.style.transform = "";
+      }
+    };
   }
 </script>
