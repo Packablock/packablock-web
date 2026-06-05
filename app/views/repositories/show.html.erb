@@ -788,7 +788,7 @@
             const row = document.createElement("div");
             row.id = `timeline-row-${dayStr}`;
             row.className = "flex items-center hover:bg-slate-50/50 px-2 py-1 gap-2 border-b border-slate-100/50 transition-colors";
-            row.style.height = "36px";
+            row.style.height = "26px";
             row.style.boxSizing = "border-box";
 
             // Format date label (e.g. "Jun 5")
@@ -816,7 +816,7 @@
             const svgWidth = uniqueManifests.length * 16;
             const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             svg.setAttribute("width", svgWidth);
-            svg.setAttribute("height", "36");
+            svg.setAttribute("height", "26");
             svg.style.flexShrink = "0";
 
             uniqueManifests.forEach((m, mIdx) => {
@@ -828,12 +828,12 @@
 
               if (hasLine) {
                 let y1 = 0;
-                let y2 = 36;
+                let y2 = 26;
                 if (dayIdx === range.first) {
-                  y1 = 18; // Start at center
+                  y1 = 13; // Start at center
                 }
                 if (dayIdx === range.last) {
-                  y2 = 18; // End at center
+                  y2 = 13; // End at center
                 }
 
                 if (range.first === range.last) {
@@ -854,7 +854,7 @@
               if (hasDot) {
                 const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
                 circle.setAttribute("cx", x);
-                circle.setAttribute("cy", "18");
+                circle.setAttribute("cy", "13");
                 circle.setAttribute("r", "4");
                 circle.setAttribute("fill", colors.dot);
                 circle.setAttribute("stroke", "#ffffff");
