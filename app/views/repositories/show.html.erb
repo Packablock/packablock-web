@@ -401,6 +401,8 @@
       const container = document.getElementById("yaml-list-content");
       if (!container) return;
 
+      const rowHeight = 26; // Shared row height for timeline rows and minimap slices
+
       if (!nodes || nodes.length === 0) {
         container.innerHTML = `<div class="text-center py-12 text-xs text-slate-500 italic">No package history log initialized yet.</div>`;
         return;
@@ -605,7 +607,7 @@
             slice.style.boxSizing = "border-box";
             slice.style.backgroundColor = colors.bg;
             slice.style.borderLeft = `3px solid ${colors.border}`;
-            slice.style.height = "26px";
+            slice.style.height = `${rowHeight}px`;
             slice.title = `Epoch ${epochIdx} - Block #${node.block_index}\nTracked Manifests: ${manifestCount}\nPrimary: ${manifest}\nLines: ${lineCount}`;
 
             const dotsContainer = document.createElement("div");
@@ -788,7 +790,7 @@
             const row = document.createElement("div");
             row.id = `timeline-row-${dayStr}`;
             row.className = "flex items-center hover:bg-slate-50/50 px-2 py-1 gap-2 border-b border-slate-100/50 transition-colors";
-            row.style.height = "26px";
+            row.style.height = `${rowHeight}px`;
             row.style.boxSizing = "border-box";
 
             // Format date label (e.g. "Jun 5")
@@ -816,7 +818,7 @@
             const svgWidth = uniqueManifests.length * 16;
             const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             svg.setAttribute("width", svgWidth);
-            svg.setAttribute("height", "26");
+            svg.setAttribute("height", rowHeight);
             svg.style.flexShrink = "0";
 
             uniqueManifests.forEach((m, mIdx) => {
@@ -827,13 +829,14 @@
               const colors = getManifestColors(m);
 
               if (hasLine) {
+                const cy = rowHeight / 2;
                 let y1 = 0;
-                let y2 = 26;
+                let y2 = rowHeight;
                 if (dayIdx === range.first) {
-                  y1 = 13; // Start at center
+                  y1 = cy; // Start at center
                 }
                 if (dayIdx === range.last) {
-                  y2 = 13; // End at center
+                  y2 = cy; // End at center
                 }
 
                 if (range.first === range.last) {
@@ -852,9 +855,10 @@
               }
 
               if (hasDot) {
+                const cy = rowHeight / 2;
                 const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
                 circle.setAttribute("cx", x);
-                circle.setAttribute("cy", "13");
+                circle.setAttribute("cy", cy);
                 circle.setAttribute("r", "4");
                 circle.setAttribute("fill", colors.dot);
                 circle.setAttribute("stroke", "#ffffff");
