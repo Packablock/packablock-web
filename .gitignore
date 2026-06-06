@@ -41,3 +41,6 @@
 /db/*.sqlite3
 /db/*.sqlite3-journal
 /db/*.sqlite3-*
+
+# Ignore transient development E2E database seeds
+/db/seeds/
