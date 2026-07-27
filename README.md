@@ -1,6 +1,6 @@
 # Packablock Web Frontend
 
-A Rails application serving as the web frontend for Packablock.
+A Rails application serving as the administrative web console for Packablock Zero-Trust Supply Chain Policy Control.
 
 ## Running the Development Stack
 
