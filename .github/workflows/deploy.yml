@@ -63,10 +63,13 @@ jobs:
           flags: |
             --add-cloudsql-instances=${{ env.DB_INSTANCE_CONNECTION }}
             --allow-unauthenticated
+            --execution-environment=gen2
+            --startup-probe=httpGet.path=/up,httpGet.port=8080,initialDelaySeconds=10,periodSeconds=5,failureThreshold=12,timeoutSeconds=5
           env_vars: |
             RAILS_ENV=production
             HTTP_PORT=8080
             TARGET_PORT=3000
+            PUMA_PORT=3000
             DB_USER=postgres
             DB_SOCKET_DIR=/cloudsql/${{ env.DB_INSTANCE_CONNECTION }}
             DB_NAME=packablock_web_prod
