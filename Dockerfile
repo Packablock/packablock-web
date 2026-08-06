@@ -74,4 +74,4 @@ ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
 # Start server via Thruster by default, this can be overwritten at runtime
 EXPOSE 80
-CMD ["./bin/thrust", "bundle", "exec", "puma", "-C", "config/puma.rb"]
+CMD ["/bin/bash", "-c", "./bin/thrust bundle exec puma -C config/puma.rb"]
