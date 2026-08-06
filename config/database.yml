@@ -23,18 +23,11 @@ test:
 # Store production database in the storage/ directory, which by default
 # is mounted as a persistent Docker volume in config/deploy.yml.
 production:
-  primary:
-    <<: *default
-    database: db/registry_web.sqlite3
-  cache:
-    <<: *default
-    database: storage/production_cache.sqlite3
-    migrations_paths: db/cache_migrate
-  queue:
-    <<: *default
-    database: storage/production_queue.sqlite3
-    migrations_paths: db/queue_migrate
-  cable:
-    <<: *default
-    database: storage/production_cable.sqlite3
-    migrations_paths: db/cable_migrate
+  adapter: postgresql
+  encoding: unicode
+  database: <%= ENV['DB_NAME'] || 'packablock_web_prod' %>
+  username: <%= ENV['DB_USER'] || 'postgres' %>
+  password: <%= ENV['DB_PASSWORD'] %>
+  # Connecting via Unix socket folder for Cloud Run proxy linkage
+  host: <%= ENV['DB_SOCKET_DIR'] || '/cloudsql/adwb-4444:us-west1:packablock-shared-db' %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
