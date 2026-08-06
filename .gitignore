@@ -44,3 +44,5 @@
 
 # Ignore transient development E2E database seeds
 /db/seeds/
+
+/config/credentials/production.key
