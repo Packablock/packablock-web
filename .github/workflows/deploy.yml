@@ -65,6 +65,8 @@ jobs:
             --allow-unauthenticated
           env_vars: |
             RAILS_ENV=production
+            HTTP_PORT=8080
+            TARGET_PORT=3000
             DB_USER=postgres
             DB_SOCKET_DIR=/cloudsql/${{ env.DB_INSTANCE_CONNECTION }}
             DB_NAME=packablock_web_prod
