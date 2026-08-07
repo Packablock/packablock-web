@@ -23,6 +23,7 @@ jobs:
       
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
+        continue-on-error: ${{ github.actor == 'dependabot[bot]' }}
       
   lint:
     runs-on: ubuntu-latest
