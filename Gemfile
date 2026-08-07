@@ -65,3 +65,5 @@ group :development do
   gem "web-console"
   gem "hotwire-livereload"
 end
+
+gem "ruby-vips", "~> 2.0"
