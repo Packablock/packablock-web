@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
-# Always run database preparation/migrations before starting the application
-bundle exec rails db:prepare
+# Always run database migrations and seed default data before starting the application
+bundle exec rails db:migrate
+bundle exec rails db:seed
 
 exec "${@}"
