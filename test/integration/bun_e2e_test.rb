@@ -6,8 +6,10 @@ class BunE2eTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
 
   def setup
-    unless Dir.exist?("/home/aaron/dev/packablock/packablock-registry")
-      skip "Skipping E2E test: registry directory not available"
+    # Skip E2E checks if registry code is not present (e.g., in CI environments)
+    @registry_dir = "/home/aaron/dev/packablock/packablock-registry"
+    unless Dir.exist?(@registry_dir)
+      skip "Skipping E2E test: registry directory is not available"
     end
 
     # 1. Clean up old database files
