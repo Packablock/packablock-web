@@ -76,3 +76,5 @@ jobs:
             RAILS_LOG_TO_STDOUT=true
             RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            REGISTRY_API_URL=https://packablock-registry-450487093520.us-west1.run.app
+            INTERNAL_REGISTRY_TOKEN=internal_secret_token_1234
