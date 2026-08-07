@@ -9,6 +9,7 @@ jobs:
   scan_ruby:
     name: Security Scans
     runs-on: ubuntu-latest
+    if: github.event_name != 'push' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Merge pull request') && !contains(github.event.head_commit.message, 'Merge branch') && !contains(github.event.head_commit.message, '(#'))
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,6 +29,7 @@ jobs:
   lint:
     name: Lint & Style Checks
     runs-on: ubuntu-latest
+    if: github.event_name != 'push' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Merge pull request') && !contains(github.event.head_commit.message, 'Merge branch') && !contains(github.event.head_commit.message, '(#'))
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
     steps:
@@ -55,6 +57,7 @@ jobs:
   test:
     name: Run Unit & Integration Tests
     runs-on: ubuntu-latest
+    if: github.event_name != 'push' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Merge pull request') && !contains(github.event.head_commit.message, 'Merge branch') && !contains(github.event.head_commit.message, '(#'))
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -73,6 +76,7 @@ jobs:
   docker_build_check:
     name: Docker Build Verification (Dry Run)
     runs-on: ubuntu-latest
+    if: github.event_name != 'push' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Merge pull request') && !contains(github.event.head_commit.message, 'Merge branch') && !contains(github.event.head_commit.message, '(#'))
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
