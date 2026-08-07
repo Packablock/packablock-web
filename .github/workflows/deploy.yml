@@ -15,6 +15,7 @@ env:
   GAR_REPO: 'us-west1-docker.pkg.dev/adwb-4444/packablock-images'
   SERVICE_NAME: 'packablock-web'
   DB_INSTANCE_CONNECTION: 'adwb-4444:us-west1:packablock-shared-db'
+  REGISTRY_API_URL: 'https://packablock-registry-450487093520.us-west1.run.app'
 
 jobs:
   deploy:
@@ -30,7 +31,7 @@ jobs:
           REQUIRED_VERSION="1.2.0"
           
           # Fetch running version from the production API
-          RUNNING_JSON=$(curl -s --fail https://packablock-registry-450487093520.us-west1.run.app/version)
+          RUNNING_JSON=$(curl -s --fail ${{ env.REGISTRY_API_URL }}/version)
           RUNNING_VERSION=$(echo $RUNNING_JSON | jq -r '.version')
           
           echo "Current running registry version: $RUNNING_VERSION"
@@ -101,5 +102,5 @@ jobs:
             RAILS_LOG_TO_STDOUT=true
             RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            REGISTRY_API_URL=https://packablock-registry-450487093520.us-west1.run.app
+            REGISTRY_API_URL=${{ env.REGISTRY_API_URL }}
             INTERNAL_REGISTRY_TOKEN=internal_secret_token_1234
