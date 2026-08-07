@@ -24,7 +24,32 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      # 1. Authenticate to Google Cloud using WIF OIDC
+      # 1. Validate API Compatibility Gate
+      - name: Validate API Compatibility Gate
+        run: |
+          REQUIRED_VERSION="1.2.0"
+          
+          # Fetch running version from the production API
+          RUNNING_JSON=$(curl -s --fail https://packablock-registry-450487093520.us-west1.run.app/version)
+          RUNNING_VERSION=$(echo $RUNNING_JSON | jq -r '.version')
+          
+          echo "Current running registry version: $RUNNING_VERSION"
+          echo "Minimum required version for this console release: $REQUIRED_VERSION"
+          
+          if [ "$RUNNING_VERSION" = "null" ] || [ -z "$RUNNING_VERSION" ]; then
+            echo "❌ ERROR: Could not retrieve version from production registry API."
+            exit 1
+          fi
+          
+          # SemVer comparison check
+          if [ "$(printf '%s\n%s' "$REQUIRED_VERSION" "$RUNNING_VERSION" | sort -V | head -n1)" != "$REQUIRED_VERSION" ]; then
+            echo "❌ ERROR: The production registry API is running version $RUNNING_VERSION, which is incompatible with this console release (requires >= $REQUIRED_VERSION)."
+            echo "Please deploy the packablock-registry update first."
+            exit 1
+          fi
+          echo "✅ Pre-flight compatibility checks passed!"
+
+      # 2. Authenticate to Google Cloud
       - name: Authenticate to Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
@@ -32,16 +57,16 @@ jobs:
           workload_identity_provider: 'projects/450487093520/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
           service_account: 'gh-deployer@adwb-4444.iam.gserviceaccount.com'
 
-      # 2. Authenticate Docker with Artifact Registry
+      # 3. Authenticate Docker with Artifact Registry
       - name: Configure Docker
         run: |
           gcloud auth configure-docker us-west1-docker.pkg.dev --quiet
 
-      # 3. Set up Docker Buildx (caching helper)
+      # 4. Set up Docker Buildx (caching helper)
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 4. Build & Tag Container Image
+      # 5. Build & Tag Container Image
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
@@ -53,7 +78,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 5. Deploy to Google Cloud Run
+      # 6. Deploy to Google Cloud Run
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
