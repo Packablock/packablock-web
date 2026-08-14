@@ -10,7 +10,7 @@ class SettingsTest < ActionDispatch::IntegrationTest
       password_confirmation: "password123",
       superuser: false
     )
-    
+
     @superuser = Admin.create!(
       email: "root-admin@packablock.com",
       password: "password123",
@@ -84,7 +84,7 @@ class SettingsTest < ActionDispatch::IntegrationTest
     assert_redirected_to settings_path
     follow_redirect!
     assert_match "Account settings updated successfully.", response.body
-    
+
     # Try logging in with the new password to confirm change
     sign_out @admin
     post admin_session_path, params: {
