@@ -20,7 +20,11 @@ module ApplicationHelper
   end
 
   def app_version
-    version_file = Rails.root.join("config", "version.txt")
-    File.exist?(version_file) ? File.read(version_file).strip : "1.0.0"
+    if Rails.env.development?
+      version_file = Rails.root.join("config/version.txt")
+      File.exist?(version_file) ? File.read(version_file).strip : "1.0.0.dev"
+    else
+      APP_VERSION
+    end
   end
 end
