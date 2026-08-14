@@ -9,6 +9,7 @@
 
 # Ignore all environment files.
 /.env*
+!/.env.template
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -46,3 +47,6 @@
 /db/seeds/
 
 /config/credentials/production.key
+
+# Ignore dynamic build version file
+/config/version.txt

@@ -1,0 +1,154 @@
+<div class="flex flex-col gap-8 w-full">
+  <!-- Title / Top Action Row -->
+  <div class="flex justify-between items-center flex-wrap gap-4">
+    <div class="flex items-center gap-3">
+      <div class="p-2 bg-slate-100 rounded-xl text-slate-700 border border-slate-200 shadow-sm flex items-center justify-center">
+        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.5 8.25h19m-19 3h19m-19 3h19m-19 3h19m-19-12h19A2.25 2.25 0 0 1 22.5 6v12A2.25 2.25 0 0 1 20.25 20.25H3.75A2.25 2.25 0 0 1 1.5 18V6A2.25 2.25 0 0 1 3.75 4.25Z" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Billing & Subscription</h1>
+        <p class="text-sm text-slate-500">Review your payment options, add billing methods, and manage subscription invoices.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layout Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Left Column: Payment Methods Overview (Col Span 7) -->
+    <div class="lg:col-span-7 flex flex-col gap-8">
+      
+      <!-- Payment Methods Card -->
+      <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
+        <div class="flex justify-between items-center flex-wrap gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Payment Methods</h2>
+            <p class="text-xs text-slate-500">Cards and payment schemes linked to your organization account.</p>
+          </div>
+          
+          <% if @stripe_configured %>
+            <%= button_to portal_session_billing_path, method: :post, class: "px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white cursor-pointer hover:bg-emerald-700 hover:shadow-md transition-all uppercase tracking-wider flex items-center gap-1.5" do %>
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              <%= @payment_methods.any? ? "Manage Methods" : "Add Payment Method" %>
+            <% end %>
+          <% end %>
+        </div>
+
+        <% if @stripe_error %>
+          <div class="p-4 rounded-lg bg-rose-50 border border-rose-100 text-rose-800 text-xs font-semibold">
+            <span class="font-bold">Stripe Integration Notice:</span>
+            <p class="mt-1 font-normal text-rose-700"><%= @stripe_error %></p>
+          </div>
+        <% end %>
+
+        <% unless @stripe_configured %>
+          <div class="p-8 text-center border border-dashed border-slate-250 rounded-xl flex flex-col gap-3.5 bg-slate-50/50">
+            <span class="text-3xl">🔌</span>
+            <div>
+              <p class="text-sm font-bold text-slate-800">Stripe Key Unconfigured</p>
+              <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Please define <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-600">STRIPE_SECRET_KEY</code> in your environment parameters to connect the billing engine portal.</p>
+            </div>
+          </div>
+        <% else %>
+          <% if @payment_methods.empty? %>
+            <div class="p-8 text-center border border-dashed border-slate-200 rounded-xl flex flex-col gap-3.5 bg-slate-50/20">
+              <span class="text-3xl">💳</span>
+              <div>
+                <p class="text-sm font-bold text-slate-800">No active billing methods</p>
+                <p class="text-xs text-slate-500 mt-1">Add a credit card to upgrade repository ledgers to the Premium status tier.</p>
+              </div>
+              
+              <%= button_to portal_session_billing_path, method: :post, class: "mx-auto px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 transition-all uppercase tracking-wider" do %>
+                Setup Billing Profile
+              <% end %>
+            </div>
+          <% else %>
+            <div class="flex flex-col border border-slate-200 rounded-xl divide-y divide-slate-150 overflow-hidden bg-white">
+              <% @payment_methods.each do |pm| %>
+                <div class="flex items-center justify-between px-6 py-4.5 hover:bg-slate-50/30 transition-colors">
+                  <div class="flex items-center gap-4">
+                    <div class="p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.5 8.25h19m-19 3h19m-19 3h19m-19 3h19m-19-12h19A2.25 2.25 0 0 1 22.5 6v12A2.25 2.25 0 0 1 20.25 20.25H3.75A2.25 2.25 0 0 1 1.5 18V6A2.25 2.25 0 0 1 3.75 4.25Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <span class="text-sm font-bold text-slate-800 uppercase tracking-wide"><%= pm.card.brand.to_s.upcase %> •••• <%= pm.card.last4 %></span>
+                      <span class="text-xs text-slate-400 block mt-0.5">Expires <%= pm.card.exp_month %>/<%= pm.card.exp_year %></span>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center gap-3">
+                    <span class="text-[9px] font-bold px-2 py-0.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-700 uppercase tracking-wider">Active</span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Stripe Diagnostics & FAQ (Col Span 5) -->
+    <div class="lg:col-span-5 flex flex-col gap-8">
+      
+      <!-- Subscription Scope / Details Card -->
+      <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-4.5">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Billing Portal redirect</h2>
+          <p class="text-xs text-slate-500">How your payment profile is handled.</p>
+        </div>
+
+        <div class="flex flex-col gap-3.5 text-xs text-slate-600 bg-slate-50 rounded-xl p-4.5 border border-slate-200/60 leading-relaxed">
+          <p>
+            Packablock orchestrates billing securely using **Stripe Customer Portal**. We do not process, collect, or cache credit card parameters on our database, achieving absolute PCI compliance and safety.
+          </p>
+          <div class="h-px bg-slate-200/70 my-0.5"></div>
+          <div class="flex items-start gap-3">
+            <span class="text-base flex-shrink-0">🔒</span>
+            <p><strong>Stripe-Hosted Security:</strong> Clicking "Manage Methods" redirects you securely to Stripe to modify cards or view receipts.</p>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="text-base flex-shrink-0">📈</span>
+            <p><strong>Premium Tier Capabilities:</strong> Premium repository ledgers unlock advanced alerts, longer integrity histories, and detailed SemVer drift analytics.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stripe Diagnostic Metadata Card -->
+      <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-4.5">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Sandbox Diagnostics</h2>
+          <p class="text-xs text-slate-500">Stripe integration metadata logs.</p>
+        </div>
+
+        <div class="flex flex-col gap-3.5 bg-slate-50 rounded-xl p-4.5 border border-slate-200/60 font-mono text-[11px] text-slate-600 leading-normal">
+          <div class="flex justify-between items-center font-sans">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Engine status</span>
+            <% if @stripe_configured %>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 uppercase tracking-wider">Ready</span>
+            <% else %>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-350 bg-slate-200 text-slate-600 uppercase tracking-wider">Unset</span>
+            <% end %>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-sans">Stripe Customer ID</span>
+            <span class="text-slate-700 select-all font-semibold"><%= @admin.stripe_customer_id.present? ? @admin.stripe_customer_id : "None" %></span>
+          </div>
+
+          <div class="h-px bg-slate-200/70 my-0.5"></div>
+          <div class="text-[10px] text-slate-400 font-sans italic leading-relaxed">
+            Customer portal session redirects inherit active customer accounts and allow automatic sandbox payment testing using Stripe test card numbers.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

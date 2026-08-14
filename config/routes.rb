@@ -26,6 +26,9 @@ Rails.application.routes.draw do
     end
 
     resource :settings, only: [ :show, :update ], controller: "settings"
+    resource :billing, only: [ :show ], controller: "billings" do
+      post :portal_session, on: :collection
+    end
   end
 
   get "up" => "rails/health#show", as: :rails_health_check

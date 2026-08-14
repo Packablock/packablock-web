@@ -151,6 +151,12 @@
                     </svg>
                     Account Settings
                   <% end %>
+                  <%= link_to billing_path, class: "w-full text-left px-3.5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-lg cursor-pointer transition-colors flex items-center gap-2.5" do %>
+                    <svg class="w-4 h-4 flex-shrink-0 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.5 8.25h19m-19 3h19m-19 3h19m-19 3h19m-19-12h19A2.25 2.25 0 0 1 22.5 6v12A2.25 2.25 0 0 1 20.25 20.25H3.75A2.25 2.25 0 0 1 1.5 18V6A2.25 2.25 0 0 1 3.75 4.25Z" />
+                    </svg>
+                    Billing & Subscription
+                  <% end %>
                   <% if current_admin.superuser? %>
                     <%= button_to purge_stale_repositories_path, method: :post, class: "w-full text-left px-3.5 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors flex items-center gap-2.5 border-0 bg-transparent" do %>
                       <svg class="w-4 h-4 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

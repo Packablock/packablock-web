@@ -1,4 +1,8 @@
-FROM docker.io/library/ruby:3.3.0
+FROM docker.io/library/ruby:3.4.1
+
+# Install system dependencies
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends libvips-dev
 
 # Rails app lives here
 WORKDIR /rails
