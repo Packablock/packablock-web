@@ -67,3 +67,7 @@ group :development do
 end
 
 gem "ruby-vips", "~> 2.0"
+gem "stripe"
+gem "google-cloud-kms"
+
+

@@ -21,6 +21,17 @@ class RepositoriesController < ApplicationController
     # Find project mapping if any
     mapping = ProjectRepository.find_by(repo_id: @repository["id"])
     @project = mapping&.project
+
+    # Check Stripe payment methods
+    @has_payment_method = false
+    if Stripe.api_key.present? && current_admin.stripe_customer_id.present?
+      begin
+        pms = Stripe::PaymentMethod.list(customer: current_admin.stripe_customer_id, type: "card")
+        @has_payment_method = pms.data.any?
+      rescue => e
+        Rails.logger.error("Failed to query Stripe status in repositories show: #{e.message}")
+      end
+    end
   end
 
   # GET /repositories/:id/tree
@@ -58,6 +69,57 @@ class RepositoriesController < ApplicationController
   def toggle_premium
     client = PackablockCore::Client.new
     begin
+      repos_data = client.list_repos
+      all_repos = repos_data["repos"] || []
+      repository = all_repos.find { |r| r["id"] == params[:id].to_i }
+
+      if repository.nil?
+        redirect_back fallback_location: dashboard_path, alert: "Repository not found."
+        return
+      end
+
+      project_repo = ProjectRepository.find_by(repo_id: params[:id])
+      is_premium = repository["is_premium"] == 1
+
+      # Integrate Stripe Subscriptions if configured
+      if Stripe.api_key.present?
+        # Ensure Stripe customer exists
+        if current_admin.stripe_customer_id.blank?
+          customer = Stripe::Customer.create({
+            email: current_admin.email,
+            metadata: { admin_id: current_admin.id, environment: Rails.env }
+          })
+          current_admin.update!(stripe_customer_id: customer.id)
+        end
+
+        pms = Stripe::PaymentMethod.list(customer: current_admin.stripe_customer_id, type: "card")
+        has_payment_method = pms.data.any?
+
+        if !is_premium # Requesting upgrade
+          if Rails.env.production? && !has_payment_method
+            redirect_to billing_path, alert: "Please add a payment method to upgrade this repository to Premium."
+            return
+          end
+
+          price_id = ENV.fetch("STRIPE_PREMIUM_PRICE_ID", "price_premium_tier_mock")
+          subscription = Stripe::Subscription.create({
+            customer: current_admin.stripe_customer_id,
+            items: [ { price: price_id } ],
+            metadata: { repo_id: params[:id], owner_email: current_admin.email }
+          })
+          project_repo&.update!(stripe_subscription_id: subscription.id)
+        else # Requesting downgrade
+          if project_repo&.stripe_subscription_id.present?
+            begin
+              Stripe::Subscription.cancel(project_repo.stripe_subscription_id)
+            rescue => e
+              Rails.logger.warn("Failed to cancel Stripe subscription #{project_repo.stripe_subscription_id}: #{e.message}")
+            end
+            project_repo.update!(stripe_subscription_id: nil)
+          end
+        end
+      end
+
       client.toggle_premium(params[:id])
       redirect_back fallback_location: dashboard_path, notice: "Access tier updated successfully."
     rescue => e
