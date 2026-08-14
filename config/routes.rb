@@ -24,6 +24,8 @@ Rails.application.routes.draw do
         post :purge_stale
       end
     end
+
+    resource :settings, only: [ :show, :update ], controller: "settings"
   end
 
   get "up" => "rails/health#show", as: :rails_health_check
