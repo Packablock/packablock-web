@@ -18,4 +18,9 @@ module ApplicationHelper
   def dev_instance?
     Rails.env.development? || request.host.end_with?(".dev.adwb.io") || request.host.include?("localhost") || request.host.include?("127.0.0.1")
   end
+
+  def app_version
+    version_file = Rails.root.join("config", "version.txt")
+    File.exist?(version_file) ? File.read(version_file).strip : "1.0.0"
+  end
 end
