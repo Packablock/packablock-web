@@ -54,4 +54,5 @@ ProjectRepository.find_or_initialize_by(repo_id: 3).update!(project: ecommerce)
 ProjectRepository.find_or_initialize_by(repo_id: 4).update!(project: ecommerce)
 ProjectRepository.find_or_initialize_by(repo_id: 5).update!(project: bun_demo)
 ProjectRepository.find_or_initialize_by(repo_id: 6).update!(project: rails_demo)
+ProjectRepository.find_or_initialize_by(repo_id: 7).update!(project: defense)
 puts " linked project repositories"
