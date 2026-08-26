@@ -12,6 +12,10 @@ class BunE2eTest < ActionDispatch::IntegrationTest
       skip "Skipping E2E test: registry directory is not available"
     end
 
+    unless Dir.exist?("/home/aaron/dev/packablock/packablock-registry")
+      skip "Skipping E2E test: registry directory not available"
+    end
+
     # 1. Clean up old database files
     @db_file = "/home/aaron/dev/packablock/packablock-registry/packablock_test_bun_e2e.sqlite"
     File.delete(@db_file) if File.exist?(@db_file)
