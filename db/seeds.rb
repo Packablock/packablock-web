@@ -31,8 +31,8 @@ rails_user.save!
 puts " seeded rails-org end-user account: manager@rails.org / rails_secret_123"
 
 # Seed default logical projects
-defense = Project.find_or_create_by!(name: "Supply Chain Defense Panel")
-defense.update!(admin: admin)
+defense = Project.find_or_initialize_by(id: 1)
+defense.update!(name: "Demo", admin: admin)
 
 ecommerce = Project.find_or_create_by!(name: "E-Commerce Core Services")
 ecommerce.update!(admin: acme_user)
@@ -48,11 +48,19 @@ rails_demo.update!(admin: rails_user)
 puts " seeded projects"
 
 # Link repositories by ID
-ProjectRepository.find_or_initialize_by(repo_id: 1).update!(project: defense)
-ProjectRepository.find_or_initialize_by(repo_id: 2).update!(project: audit)
-ProjectRepository.find_or_initialize_by(repo_id: 3).update!(project: ecommerce)
-ProjectRepository.find_or_initialize_by(repo_id: 4).update!(project: ecommerce)
-ProjectRepository.find_or_initialize_by(repo_id: 5).update!(project: bun_demo)
-ProjectRepository.find_or_initialize_by(repo_id: 6).update!(project: rails_demo)
-ProjectRepository.find_or_initialize_by(repo_id: 7).update!(project: defense)
+active_links = {
+  2 => audit,
+  3 => ecommerce,
+  4 => ecommerce,
+  5 => bun_demo,
+  6 => rails_demo,
+  7 => defense
+}
+
+active_links.each do |repo_id, project|
+  ProjectRepository.find_or_initialize_by(repo_id: repo_id).update!(project: project)
+end
+
+# Remove any old repository links not in active_links
+ProjectRepository.where.not(repo_id: active_links.keys).destroy_all
 puts " linked project repositories"
