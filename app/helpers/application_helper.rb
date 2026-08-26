@@ -14,4 +14,8 @@ module ApplicationHelper
       domain.split(".").first.capitalize
     end
   end
+
+  def dev_instance?
+    Rails.env.development? || request.host.end_with?(".dev.adwb.io") || request.host.include?("localhost") || request.host.include?("127.0.0.1")
+  end
 end

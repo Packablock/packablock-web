@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Packablock Web" %></title>
+    <title><%= (dev_instance? ? "[dev] " : "") + (content_for(:title) || "Packablock Web") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Packablock Web">
@@ -47,6 +47,12 @@
           <div class="h-4 w-px bg-slate-200"></div>
           
           <div class="flex items-center gap-2">
+            <% if dev_instance? %>
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-bold uppercase tracking-wider mr-1 select-none animate-pulse">
+                <span class="w-1 h-1 rounded-full bg-amber-500"></span>
+                dev
+              </span>
+            <% end %>
             <!-- Notification Dropdown -->
             <div class="relative flex items-center mr-2" id="notification-dropdown-container">
               <!-- Combined Notification Trigger Button -->
@@ -167,7 +173,7 @@
     <footer class="border-t border-slate-200 py-6 text-center text-xs text-slate-500 bg-white mt-auto">
       <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <span>© 2026 Packablock Inc. All rights reserved.</span>
-        <span class="font-mono text-slate-600">Registry Web Platform v1.0.0</span>
+        <span class="font-mono text-slate-600">Registry Web Platform v1.0.0<%= " (Dev)" if dev_instance? %></span>
       </div>
     </footer>
 
