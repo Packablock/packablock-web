@@ -13,6 +13,7 @@ services:
       - INTERNAL_REGISTRY_TOKEN=internal_secret_token_1234
       - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - REGISTRY_API_URL=${REGISTRY_API_URL:-http://localhost:3030}
     volumes:
       - .:/rails
       # Avoid mounting host node_modules or tmp lock files over container environment
