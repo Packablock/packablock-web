@@ -14,7 +14,7 @@
         <div class="flex items-center gap-3">
           <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Registry Dashboard</h1>
         </div>
-        <p class="text-sm text-slate-500">Zero-trust supply chain audit logs & repository integrity checks.</p>
+        <p class="text-sm text-slate-600">Zero-trust supply chain audit logs & repository integrity checks.</p>
       </div>
     </div>
 
@@ -25,7 +25,7 @@
       <div class="flex justify-between items-center flex-wrap gap-4">
         <div>
           <h2 class="text-xl font-bold text-slate-900">Logical Project Containers</h2>
-          <p class="text-xs text-slate-500">Purely visual environment groups stored in local Rails SQL database.</p>
+          <p class="text-xs text-slate-600">Purely visual environment groups stored in local Rails SQL database.</p>
         </div>
         <%= link_to "+ Create Project", new_project_path, class: "px-4 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white cursor-pointer hover:bg-emerald-700 hover:shadow-md transition-all uppercase tracking-wider flex items-center" %>
       </div>
@@ -33,13 +33,13 @@
       <% if @projects.empty? %>
         <div class="p-8 text-center border border-dashed border-slate-200 rounded-xl flex flex-col gap-4">
           <span class="text-2xl">📂</span>
-          <p class="text-sm text-slate-500">No projects mapped yet. Create one to organize repositories.</p>
+          <p class="text-sm text-slate-600">No projects mapped yet. Create one to organize repositories.</p>
           <%= link_to "+ Create First Project", new_project_path, class: "mx-auto px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 transition-all" %>
         </div>
       <% else %>
         <div class="flex flex-col border border-slate-200 rounded-xl divide-y divide-slate-150 overflow-hidden bg-white">
           <!-- Table Header -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-slate-50/75 px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-slate-50/75 px-6 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider">
             <div class="md:col-span-4 flex items-center gap-2">Project Container</div>
             <div class="md:col-span-6 flex items-center">Linked Repository Ledgers</div>
             <div class="md:col-span-2 flex items-center md:justify-end">Actions</div>
@@ -56,7 +56,7 @@
                 </div>
                 <div class="min-w-0">
                   <%= link_to project.name, project_path(project), class: "font-bold text-slate-900 hover:text-emerald-600 text-base transition-colors hover:underline block truncate" %>
-                  <span class="text-xs text-slate-400 font-semibold block mt-0.5">
+                  <span class="text-xs text-slate-600 font-semibold block mt-0.5">
                     <%= project.project_repositories.count %> linked ledgers
                   </span>
                 </div>
@@ -66,7 +66,7 @@
               <div class="md:col-span-6">
                 <% linked_repos = @repositories.select { |r| project.project_repositories.pluck(:repo_id).include?(r["id"]) } %>
                 <% if linked_repos.empty? %>
-                  <span class="text-xs text-slate-400 italic">No repositories linked to this container.</span>
+                  <span class="text-xs text-slate-600 italic">No repositories linked to this container.</span>
                 <% else %>
                   <div class="flex flex-wrap gap-2">
                     <% linked_repos.each do |repo| %>
@@ -75,7 +75,7 @@
                         <% if repo["is_premium"] == 1 %>
                           <span class="text-[8px] font-bold px-1 py-0.2 rounded border border-blue-200 bg-blue-50 text-blue-700 uppercase tracking-wider flex-shrink-0">Prem</span>
                         <% else %>
-                          <span class="text-[8px] font-bold px-1 py-0.2 rounded border border-slate-200 bg-slate-100 text-slate-500 uppercase tracking-wider flex-shrink-0">Std</span>
+                          <span class="text-[8px] font-bold px-1 py-0.2 rounded border border-slate-200 bg-slate-100 text-slate-600 uppercase tracking-wider flex-shrink-0">Std</span>
                         <% end %>
                       </div>
                     <% end %>
@@ -86,7 +86,7 @@
               <!-- Actions -->
               <div class="md:col-span-2 flex items-center md:justify-end gap-3">
                 <%= link_to "Manage", project_path(project), class: "px-3 py-1.5 text-xs font-bold rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all uppercase tracking-wider text-center min-w-[76px]" %>
-                <%= link_to "Edit", edit_project_path(project), class: "px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all uppercase tracking-wider text-center min-w-[64px]" %>
+                <%= link_to "Edit", edit_project_path(project), class: "px-3 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-700 transition-all uppercase tracking-wider text-center min-w-[64px]" %>
               </div>
             </div>
           <% end %>

@@ -15,7 +15,7 @@
   <!-- Title / Breadcrumbs -->
   <div class="flex justify-between items-start flex-wrap gap-4">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">
+      <div class="flex items-center gap-2 text-xs text-slate-600 font-semibold uppercase tracking-wider mb-1">
         <%= link_to "Dashboard", dashboard_path, class: "hover:text-slate-900" %>
         <% if @project %>
           <span>/</span>
@@ -27,11 +27,11 @@
         <span class="text-slate-800 font-mono"><%= @repository["owner"] %>/<%= @repository["repo"] %></span>
       </div>
       <h1 class="text-3xl font-extrabold tracking-tight text-slate-900 font-mono"><%= @repository["owner"] %>/<%= @repository["repo"] %></h1>
-      <p class="text-sm text-slate-500">Cryptographic audit log chain tree & pinned keys.</p>
+      <p class="text-sm text-slate-600">Cryptographic audit log chain tree & pinned keys.</p>
     </div>
     
     <div class="flex gap-3">
-      <%= link_to "Back to Console", dashboard_path, class: "px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:border-slate-400 bg-white transition-colors uppercase tracking-wider flex items-center justify-center" %>
+      <%= link_to "Back to Console", dashboard_path, class: "px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-400 bg-white transition-colors uppercase tracking-wider flex items-center justify-center" %>
     </div>
   </div>
 
@@ -40,12 +40,12 @@
     <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
       <div>
         <h3 class="text-lg font-bold text-slate-900">Registry Credentials</h3>
-        <p class="text-xs text-slate-500">Zero-trust push configurations and state tokens.</p>
+        <p class="text-xs text-slate-600">Zero-trust push configurations and state tokens.</p>
       </div>
 
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Push Token</label>
+          <label class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Active Push Token</label>
           <div class="flex gap-2">
             <input type="text" value="<%= @repository["registration_token"] %>" readonly class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 font-mono focus:outline-none" id="token-copy-field">
             <button onclick="copyToken()" class="px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 cursor-pointer transition-colors">Copy</button>
@@ -53,7 +53,7 @@
         </div>
 
         <div class="flex justify-between items-center text-sm border-t border-slate-100 pt-4 mt-2">
-          <span class="text-xs text-slate-500">Premium Account Tier:</span>
+          <span class="text-xs text-slate-600">Premium Account Tier:</span>
           <% if @repository["is_premium"] == 1 %>
             <span class="text-xs font-bold px-2 py-0.5 rounded border border-blue-200 bg-blue-50 text-blue-700 uppercase">Active Premium</span>
           <% else %>
@@ -74,22 +74,22 @@
     <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
       <div>
         <h3 class="text-lg font-bold text-slate-900">Challenge Trust Pinned Identity</h3>
-        <p class="text-xs text-slate-500">Cryptographic identity pinned in registry database.</p>
+        <p class="text-xs text-slate-600">Cryptographic identity pinned in registry database.</p>
       </div>
 
       <div class="flex flex-col gap-4">
         <div class="flex justify-between items-center text-sm">
-          <span class="text-xs text-slate-500">ACME Verification Status:</span>
+          <span class="text-xs text-slate-600">ACME Verification Status:</span>
           <span class="text-xs font-bold px-2.5 py-0.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-700 uppercase"><%= @repository["verification_status"] || "none" %></span>
         </div>
 
         <div class="flex flex-col gap-1.5 border-t border-slate-100 pt-3">
-          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Verification Challenge Nonce</label>
+          <label class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Active Verification Challenge Nonce</label>
           <input type="text" value="<%= @repository["challenge_nonce"] || "N/A" %>" readonly class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-600 font-mono focus:outline-none">
         </div>
 
         <div class="flex flex-col gap-1.5 border-t border-slate-100 pt-3">
-          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pinned GPG / Sigstore Trust Anchor</label>
+          <label class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Pinned GPG / Sigstore Trust Anchor</label>
           <textarea readonly class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[10px] text-slate-600 font-mono focus:outline-none h-[80px] resize-none"><%= @repository["pinned_public_key"] || "No public key pinned yet." %></textarea>
         </div>
       </div>
@@ -101,7 +101,7 @@
     <div class="flex justify-between items-center flex-wrap gap-4">
       <div>
         <h3 class="text-xl font-bold text-slate-900">Package History Ledger Lineage</h3>
-        <p class="text-xs text-slate-500">Lineage tree representing cryptographic verification checkpoints. Click blocks to inspect metadata.</p>
+        <p class="text-xs text-slate-600">Lineage tree representing cryptographic verification checkpoints. Click blocks to inspect metadata.</p>
       </div>
     </div>
 
@@ -118,11 +118,11 @@
       <div class="border border-slate-200 rounded-lg bg-slate-50/50 p-6 flex flex-col gap-5 shadow-sm" id="inspector-panel">
         <div>
           <h4 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-1">Ledger Inspector</h4>
-          <p class="text-[11px] text-slate-500">Click any block in the lineage tree to parse its cryptographic attributes.</p>
+          <p class="text-[11px] text-slate-600">Click any block in the lineage tree to parse its cryptographic attributes.</p>
         </div>
 
         <div class="flex flex-col gap-4" id="inspector-content">
-          <div class="text-center py-12 text-xs text-slate-400 italic">No block selected.</div>
+          <div class="text-center py-12 text-xs text-slate-600 italic">No block selected.</div>
         </div>
       </div>
     </div>
@@ -132,7 +132,7 @@
   <div class="flex flex-col gap-4" id="yaml-payloads-panel">
     <div>
       <h3 class="text-xl font-bold text-slate-900">YAML Block Payload Explorer</h3>
-      <p class="text-xs text-slate-500">Shows the complete, raw cryptographically signed YAML payloads (Data and Metadata) of every block in the ledger chain.</p>
+      <p class="text-xs text-slate-600">Shows the complete, raw cryptographically signed YAML payloads (Data and Metadata) of every block in the ledger chain.</p>
     </div>
 
     <div class="border border-slate-200 rounded-xl bg-white shadow-sm flex flex-col overflow-hidden" style="height: 550px;">
@@ -145,7 +145,7 @@
           <span class="text-xs font-mono text-slate-600 ml-2 font-bold"><%= @repository["owner"] %>/<%= @repository["repo"] %>.yaml</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">Signed Ledger Stream</span>
+          <span class="text-[10px] font-mono text-slate-600 uppercase tracking-widest">Signed Ledger Stream</span>
           <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-700 font-mono">SECURE</span>
         </div>
       </div>
@@ -154,7 +154,7 @@
       <div class="flex-1 flex flex-row overflow-hidden relative">
         <!-- Scrollable Ledger Content -->
         <div class="flex-1 overflow-y-auto bg-slate-50/50 p-6 font-mono text-xs text-slate-800 leading-relaxed shadow-inner" id="yaml-list-content">
-          <div class="text-center py-12 text-xs text-slate-400 italic">Loading ledger blocks...</div>
+          <div class="text-center py-12 text-xs text-slate-600 italic">Loading ledger blocks...</div>
         </div>
         <!-- Git History Styled Timeline Container -->
         <div id="chain-timeline" class="border-l border-slate-200 bg-slate-50/10 flex flex-col select-none relative overflow-y-auto flex-shrink-0" style="scrollbar-width: none; -ms-overflow-style: none; width: 140px;">
@@ -222,10 +222,10 @@
 
     function showError(message) {
       svg.html("");
-      inspector.innerHTML = `<div class="text-center py-12 text-xs text-slate-400 italic">Audit tree unavailable.</div>`;
+      inspector.innerHTML = `<div class="text-center py-12 text-xs text-slate-600 italic">Audit tree unavailable.</div>`;
       const yamlContainer = document.getElementById("yaml-list-content");
       if (yamlContainer) {
-        yamlContainer.innerHTML = `<div class="text-center py-12 text-xs text-slate-400 italic">Audit logs unavailable.</div>`;
+        yamlContainer.innerHTML = `<div class="text-center py-12 text-xs text-slate-600 italic">Audit logs unavailable.</div>`;
       }
       const g = svg.append("g")
         .attr("transform", "translate(40, 260)");
@@ -345,14 +345,14 @@
         inspector.innerHTML = `
           <div class="flex flex-col gap-4">
             <div>
-              <span class="text-[9px] font-black tracking-widest text-slate-400 uppercase">Anchor Type</span>
+              <span class="text-[9px] font-black tracking-widest text-slate-600 uppercase">Anchor Type</span>
               <div class="text-sm font-bold text-slate-900 mt-0.5">Genesis Anchor Point</div>
             </div>
             <div class="border-t border-slate-200 pt-3">
-              <span class="text-[9px] font-black tracking-widest text-slate-400 uppercase">Root Hash Identifier</span>
+              <span class="text-[9px] font-black tracking-widest text-slate-600 uppercase">Root Hash Identifier</span>
               <div class="text-[10px] font-mono text-slate-700 mt-1 break-all bg-white p-2.5 rounded border border-slate-200">${node.id}</div>
             </div>
-            <div class="text-[11px] text-slate-500 italic border-t border-slate-200 pt-3 mt-1">This node establishes the initial cryptographic trust root. All subsequent package logs anchor validation back to this key.</div>
+            <div class="text-[11px] text-slate-600 italic border-t border-slate-200 pt-3 mt-1">This node establishes the initial cryptographic trust root. All subsequent package logs anchor validation back to this key.</div>
           </div>
         `;
       } else {
@@ -362,35 +362,35 @@
           <div class="flex flex-col gap-4">
             <div class="flex justify-between items-start">
               <div>
-                <span class="text-[9px] font-black tracking-widest text-slate-400 uppercase">Verification Level</span>
+                <span class="text-[9px] font-black tracking-widest text-slate-600 uppercase">Verification Level</span>
                 <div class="text-sm font-bold text-slate-900 mt-0.5">${node.name}</div>
               </div>
               ${badge}
             </div>
 
             <div class="border-t border-slate-200 pt-3">
-              <span class="text-[9px] font-black tracking-widest text-slate-400 uppercase">Client Spec Version</span>
+              <span class="text-[9px] font-black tracking-widest text-slate-600 uppercase">Client Spec Version</span>
               <div class="text-xs font-bold text-slate-800 mt-0.5">${node.version || "1.0.0"}</div>
             </div>
 
             <div class="border-t border-slate-200 pt-3">
-              <span class="text-[9px] font-black tracking-widest text-slate-400 uppercase">Timestamp</span>
+              <span class="text-[9px] font-black tracking-widest text-slate-600 uppercase">Timestamp</span>
               <div class="text-xs font-bold text-slate-800 mt-0.5">${new Date(node.timestamp).toLocaleString()}</div>
             </div>
 
             <div class="border-t border-slate-200 pt-3">
-              <span class="text-[9px] font-black tracking-widest text-slate-400 uppercase">Cryptographic Meta Hash</span>
+              <span class="text-[9px] font-black tracking-widest text-slate-600 uppercase">Cryptographic Meta Hash</span>
               <div class="text-[9px] font-mono text-emerald-700 mt-1 break-all bg-white p-2.5 rounded border border-slate-200">${node.meta_hash}</div>
             </div>
 
             <div class="border-t border-slate-200 pt-3">
-              <span class="text-[9px] font-black tracking-widest text-slate-400 uppercase">Payload Data Hash</span>
+              <span class="text-[9px] font-black tracking-widest text-slate-600 uppercase">Payload Data Hash</span>
               <div class="text-[9px] font-mono text-slate-700 mt-1 break-all bg-white p-2.5 rounded border border-slate-200">${node.data_hash}</div>
             </div>
 
             <div class="border-t border-slate-200 pt-3">
-              <span class="text-[9px] font-black tracking-widest text-slate-400 uppercase">Previous Link Reference</span>
-              <div class="text-[9px] font-mono text-slate-400 mt-1 break-all bg-white p-2.5 rounded border border-slate-200">${node.prev_meta_hash}</div>
+              <span class="text-[9px] font-black tracking-widest text-slate-600 uppercase">Previous Link Reference</span>
+              <div class="text-[9px] font-mono text-slate-600 mt-1 break-all bg-white p-2.5 rounded border border-slate-200">${node.prev_meta_hash}</div>
             </div>
           </div>
         `;
@@ -404,7 +404,7 @@
       const rowHeight = 26; // Shared row height for timeline rows and minimap slices
 
       if (!nodes || nodes.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-xs text-slate-500 italic">No package history log initialized yet.</div>`;
+        container.innerHTML = `<div class="text-center py-12 text-xs text-slate-600 italic">No package history log initialized yet.</div>`;
         return;
       }
 
@@ -412,7 +412,7 @@
       const blocksOnly = nodes.filter(n => n.type !== "root").sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
       if (blocksOnly.length === 0) {
-        container.innerHTML = `<div class="text-center py-12 text-xs text-slate-500 italic">No blocks found in ledger lineage.</div>`;
+        container.innerHTML = `<div class="text-center py-12 text-xs text-slate-600 italic">No blocks found in ledger lineage.</div>`;
         return;
       }
 
@@ -537,18 +537,18 @@
 
         item.innerHTML = `
           <!-- Block Header line styled as a YAML comment/divider -->
-          <div class="flex justify-between items-center text-[10px] text-slate-400 font-mono border-b border-slate-100 pb-1.5 mb-1 select-none">
+          <div class="flex justify-between items-center text-[10px] text-slate-600 font-mono border-b border-slate-100 pb-1.5 mb-1 select-none">
             <div class="flex items-center gap-2">
               <span class="text-emerald-600 font-bold">---</span>
               <span class="text-slate-700 font-bold"># BLOCK #${node.block_index} (EPOCH ${node.epoch_index})</span>
-              <span class="text-slate-400">(${node.meta_hash.slice(0, 12)}...)</span>
-              <span class="text-slate-400">${new Date(node.timestamp).toLocaleString()}</span>
+              <span class="text-slate-600">(${node.meta_hash.slice(0, 12)}...)</span>
+              <span class="text-slate-600">${new Date(node.timestamp).toLocaleString()}</span>
               ${node.type === 'rollover' ? '<span class="text-amber-600 font-bold uppercase text-[9px]">[ROLLOVER]</span>' : ''}
               ${badge}
             </div>
             <div class="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-              <button onclick="copyDataText(this)" class="text-slate-400 hover:text-slate-700 text-[10px] cursor-pointer hover:underline bg-transparent border-0 p-0">Copy Data</button>
-              <button onclick="copyMetaText(this)" class="text-slate-400 hover:text-slate-700 text-[10px] cursor-pointer hover:underline bg-transparent border-0 p-0">Copy Metadata</button>
+              <button onclick="copyDataText(this)" class="text-slate-600 hover:text-slate-800 text-[10px] cursor-pointer hover:underline bg-transparent border-0 p-0">Copy Data</button>
+              <button onclick="copyMetaText(this)" class="text-slate-600 hover:text-slate-800 text-[10px] cursor-pointer hover:underline bg-transparent border-0 p-0">Copy Metadata</button>
             </div>
           </div>
 
@@ -560,7 +560,7 @@
           <!-- Meta Payload (collapsed by default) -->
           <div class="mt-2 pl-4 border-l-2 border-slate-200 flex flex-col gap-2">
             <!-- Collapsible Trigger -->
-            <button onclick="toggleMetaSection(this)" class="text-[10px] text-slate-400 hover:text-slate-600 font-mono flex items-center gap-1.5 focus:outline-none cursor-pointer w-fit select-none bg-transparent border-0 p-0">
+            <button onclick="toggleMetaSection(this)" class="text-[10px] text-slate-600 hover:text-slate-800 font-mono flex items-center gap-1.5 focus:outline-none cursor-pointer w-fit select-none bg-transparent border-0 p-0">
               <span class="transform transition-transform duration-150 inline-block font-bold">▶</span>
               <span class="font-bold"># view verification metadata</span>
             </button>
@@ -583,7 +583,7 @@
           epochCol.style.msOverflowStyle = "none";
 
           const header = document.createElement("div");
-          header.className = "bg-slate-100/80 backdrop-blur-sm border-b border-slate-200 text-[8px] font-bold font-mono text-center py-1.5 text-slate-500 uppercase select-none sticky top-0 z-10 tracking-wider";
+          header.className = "bg-slate-100/80 backdrop-blur-sm border-b border-slate-200 text-[8px] font-bold font-mono text-center py-1.5 text-slate-600 uppercase select-none sticky top-0 z-10 tracking-wider";
           header.innerText = `EPOCH ${epochIdx}`;
           epochCol.appendChild(header);
 
@@ -747,7 +747,7 @@
 
           // Render legend inside the sticky header container
           const legend = document.createElement("div");
-          legend.className = "flex flex-row items-center justify-start gap-2 py-1.5 px-2 text-[8px] font-mono text-slate-500 overflow-x-auto select-none flex-wrap w-full";
+          legend.className = "flex flex-row items-center justify-start gap-2 py-1.5 px-2 text-[8px] font-mono text-slate-600 overflow-x-auto select-none flex-wrap w-full";
           legend.style.boxSizing = "border-box";
           legend.style.scrollbarWidth = "none";
           legend.style.msOverflowStyle = "none";
@@ -913,7 +913,7 @@
 
       html = html.replace(regex, (match, comment, indent, key, colon, dstr, sstr, val, num) => {
         if (comment) {
-          return `<span class="text-slate-400 italic">${comment}</span>`;
+          return `<span class="text-slate-600 italic">${comment}</span>`;
         }
         if (key) {
           return `${indent}<span class="text-blue-700 font-semibold">${key}</span>${colon}`;

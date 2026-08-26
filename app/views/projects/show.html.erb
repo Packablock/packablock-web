@@ -2,17 +2,17 @@
   <!-- Title Header Row -->
   <div class="flex justify-between items-start flex-wrap gap-4">
     <div>
-      <div class="flex items-center gap-2 text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">
+      <div class="flex items-center gap-2 text-xs text-slate-600 font-semibold uppercase tracking-wider mb-1">
         <%= link_to "Dashboard", dashboard_path, class: "hover:text-slate-900" %>
         <span>/</span>
         <span class="text-slate-800">Projects</span>
       </div>
       <h1 class="text-3xl font-extrabold tracking-tight text-slate-900"><%= @project.name %></h1>
-      <p class="text-sm text-slate-500">Map and group supply chain trust registries under this project environment.</p>
+      <p class="text-sm text-slate-600">Map and group supply chain trust registries under this project environment.</p>
     </div>
     <div class="flex gap-3">
       <%= button_to "Delete Project", project_path(@project), method: :delete, data: { confirm: "Are you sure you want to permanently delete this project?" }, class: "px-4 py-2 text-xs font-bold rounded-lg border border-rose-200 bg-rose-50 text-rose-600 cursor-pointer hover:bg-rose-600 hover:text-white transition-all uppercase tracking-wider" %>
-      <%= link_to "Back to Dashboard", dashboard_path, class: "px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:border-slate-400 bg-white transition-all uppercase tracking-wider flex items-center justify-center" %>
+      <%= link_to "Back to Dashboard", dashboard_path, class: "px-4 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-400 bg-white transition-all uppercase tracking-wider flex items-center justify-center" %>
     </div>
   </div>
 
@@ -20,18 +20,18 @@
   <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
     <div>
       <h2 class="text-xl font-bold text-slate-900">Repositories</h2>
-      <p class="text-xs text-slate-500">Repositories associated with this environment container.</p>
+      <p class="text-xs text-slate-600">Repositories associated with this environment container.</p>
     </div>
 
     <% if @linked_repositories.empty? %>
       <div class="p-8 text-center border border-dashed border-slate-200 rounded-xl flex flex-col gap-3">
         <span class="text-xl">🔗</span>
-        <p class="text-sm text-slate-500">No repositories linked to this project container yet.</p>
+        <p class="text-sm text-slate-600">No repositories linked to this project container yet.</p>
       </div>
     <% else %>
       <div class="flex flex-col border border-slate-200 rounded-xl divide-y divide-slate-150 overflow-hidden bg-white">
         <!-- Table Header -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-slate-50/75 px-6 py-3.5 text-xs font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 bg-slate-50/75 px-6 py-3.5 text-xs font-bold text-slate-600 uppercase tracking-wider whitespace-nowrap">
           <div class="md:col-span-4 flex items-center">Repository</div>
           <div class="md:col-span-2 flex items-center">Verification</div>
           <div class="md:col-span-2 flex items-center">Trust Anchor</div>
@@ -54,7 +54,7 @@
               <% elsif status == 'pending' %>
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700 uppercase tracking-wider">Pending</span>
               <% else %>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500 uppercase tracking-wider">None</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600 uppercase tracking-wider">None</span>
               <% end %>
             </div>
 
@@ -66,18 +66,18 @@
                   Pinned
                 </span>
               <% else %>
-                <span class="text-[10px] font-medium text-slate-400 italic">No Anchor</span>
+                <span class="text-[10px] font-medium text-slate-600 italic">No Anchor</span>
               <% end %>
             </div>
 
             <!-- Registered On -->
-            <div class="md:col-span-2 flex items-center text-xs text-slate-500 font-medium">
+            <div class="md:col-span-2 flex items-center text-xs text-slate-600 font-medium">
               <%= DateTime.parse(repo['created_at']).strftime("%b %d, %Y") rescue repo['created_at'] %>
             </div>
 
             <!-- Actions -->
             <div class="md:col-span-2 flex items-center md:justify-end">
-              <button id="ignore-btn-<%= repo['id'] %>" onclick="toggleIgnoreRepo(<%= repo['id'] %>)" class="p-1.5 rounded-lg border border-slate-250 bg-slate-50 text-slate-500 hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 cursor-pointer transition-all flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider" title="Toggle Ignore">
+              <button id="ignore-btn-<%= repo['id'] %>" onclick="toggleIgnoreRepo(<%= repo['id'] %>)" class="p-1.5 rounded-lg border border-slate-250 bg-slate-50 text-slate-600 hover:text-emerald-600 hover:border-emerald-300 hover:bg-emerald-50 cursor-pointer transition-all flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider" title="Toggle Ignore">
                 <span id="eye-open-<%= repo['id'] %>" class="flex items-center gap-1">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -85,7 +85,7 @@
                   </svg>
                   Ignore
                 </span>
-                <span id="eye-closed-<%= repo['id'] %>" class="hidden flex items-center gap-1 text-slate-400">
+                <span id="eye-closed-<%= repo['id'] %>" class="hidden flex items-center gap-1 text-slate-600">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                   </svg>
@@ -104,7 +104,7 @@
       <div class="flex flex-col gap-4">
         <div>
           <h3 class="text-base font-bold text-slate-900">Register New Repository</h3>
-          <p class="text-xs text-slate-500">
+          <p class="text-xs text-slate-600">
             Run this CLI command to register a new repository on the trust network. Need the CLI?
             <button id="open-install-modal" class="text-emerald-600 hover:text-emerald-700 hover:underline font-semibold cursor-pointer bg-transparent border-0 p-0 inline">Install pkablk</button>
           </p>
@@ -123,7 +123,7 @@
               </svg>
             </button>
           </div>
-          <span class="text-[10px] text-slate-400 italic">Replace &lt;owner/repo&gt; with your GitHub repository (e.g., Packablock/my-app).</span>
+          <span class="text-[10px] text-slate-600 italic">Replace &lt;owner/repo&gt; with your GitHub repository (e.g., Packablock/my-app).</span>
         </div>
       </div>
 
@@ -131,15 +131,15 @@
       <div class="flex flex-col gap-4">
         <div>
           <h3 class="text-base font-bold text-slate-900">Registry Linker Tool</h3>
-          <p class="text-xs text-slate-500">Add active package ledgers to this project space.</p>
+          <p class="text-xs text-slate-600">Add active package ledgers to this project space.</p>
         </div>
 
         <% if @unlinked_repositories.empty? %>
-          <p class="text-sm text-slate-500 italic py-2">All registered repository ledgers are already mapped to this environment or another project.</p>
+          <p class="text-sm text-slate-600 italic py-2">All registered repository ledgers are already mapped to this environment or another project.</p>
         <% else %>
           <%= form_with(url: link_repository_project_path(@project), method: :post, class: "flex flex-col gap-4") do |form| %>
             <div class="flex flex-col gap-2">
-              <%= form.label :repo_id, "Select Unlinked Repository", class: "text-xs font-semibold text-slate-500 uppercase tracking-wider" %>
+              <%= form.label :repo_id, "Select Unlinked Repository", class: "text-xs font-semibold text-slate-600 uppercase tracking-wider" %>
               <%= form.select :repo_id, options_for_select(@unlinked_repositories.map { |r| ["#{r['owner']}/#{r['repo']} (ID: #{r['id']})", r["id"]] }), {}, class: "w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors" %>
             </div>
             <%= form.submit "Link Selected Repository", class: "w-full py-3 rounded-lg bg-emerald-600 text-white font-bold text-xs cursor-pointer hover:bg-emerald-700 transition-all uppercase tracking-wider" %>
@@ -147,14 +147,16 @@
         <% end %>
       </div>
     </div>
-  </d  <!-- Candlestick Charts Section -->
+  </div>
+
+  <!-- Candlestick Charts Section -->
   <% unless @linked_repositories.empty? %>
     <% @linked_repositories.each do |repo| %>
       <div id="candlestick-wrapper-<%= repo['id'] %>" class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-6">
         <div class="flex justify-between items-start flex-wrap gap-4">
           <div>
             <h3 class="text-lg font-bold text-slate-900">SemVer Candlestick Timelines: <%= repo['owner'] %>/<%= repo['repo'] %></h3>
-            <p class="text-xs text-slate-500">Visualizes package constraints (wick), active version timeline (body), current pinned version (dot), and upstream release drift (line/endpoint).</p>
+            <p class="text-xs text-slate-600">Visualizes package constraints (wick), active version timeline (body), current pinned version (dot), and upstream release drift (line/endpoint).</p>
           </div>
         </div>
 
@@ -170,7 +172,7 @@
               View Settings
             </h4>
             <div id="manifest-filters-<%= repo['id'] %>" class="flex flex-col gap-2">
-              <span class="text-slate-400 italic">Detecting manifests...</span>
+              <span class="text-slate-600 italic">Detecting manifests...</span>
             </div>
           </div>
 
@@ -183,16 +185,16 @@
               Chain Status
             </h4>
             <div id="chain-status-<%= repo['id'] %>" class="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-[11px] text-slate-600">
-              <div class="text-slate-400 font-sans font-semibold">Total Blocks:</div>
+              <div class="text-slate-600 font-sans font-semibold">Total Blocks:</div>
               <div id="status-blocks-<%= repo['id'] %>" class="font-bold text-slate-800">-</div>
-              <div class="text-slate-400 font-sans font-semibold">Rollovers:</div>
+              <div class="text-slate-600 font-sans font-semibold">Rollovers:</div>
               <div id="status-rollovers-<%= repo['id'] %>" class="font-bold text-slate-800">-</div>
-              <div class="text-slate-400 font-sans font-semibold">Forgots:</div>
+              <div class="text-slate-600 font-sans font-semibold">Forgots:</div>
               <div id="status-forgots-<%= repo['id'] %>" class="font-bold text-slate-800">-</div>
-              <div class="text-slate-400 col-span-2 mt-1 border-t border-slate-100 pt-1.5 font-sans font-semibold">Chain Init:</div>
-              <div id="status-init-<%= repo['id'] %>" class="col-span-2 truncate text-[10px] text-slate-500">-</div>
+              <div class="text-slate-600 col-span-2 mt-1 border-t border-slate-100 pt-1.5 font-sans font-semibold">Chain Init:</div>
+              <div id="status-init-<%= repo['id'] %>" class="col-span-2 truncate text-[10px] text-slate-600">-</div>
               <div class="col-span-2 mt-1 border-t border-slate-100 pt-1 font-sans font-semibold">Last Block:</div>
-              <div id="status-last-<%= repo['id'] %>" class="col-span-2 truncate text-[10px] text-slate-500">-</div>
+              <div id="status-last-<%= repo['id'] %>" class="col-span-2 truncate text-[10px] text-slate-600">-</div>
             </div>
           </div>
 
@@ -226,7 +228,7 @@
 
         <div id="candlestick-chart-<%= repo['id'] %>" data-repo-id="<%= repo['id'] %>" data-url="<%= candlesticks_repository_path(repo['id']) %>" data-tree-url="<%= tree_repository_path(repo['id']) %>" data-premium="<%= repo['is_premium'] == 1 %>" class="candlestick-chart w-full bg-slate-50/30 rounded-lg p-4 border border-slate-200 min-h-[100px] flex flex-col gap-6 items-stretch">
           <div class="flex items-center justify-center py-8 loader-placeholder">
-            <span class="text-xs text-slate-400 italic">Loading candlesticks...</span>
+            <span class="text-xs text-slate-600 italic">Loading candlesticks...</span>
           </div>
         </div>
       </div>
@@ -375,7 +377,7 @@
                   <input type="checkbox" checked onchange="toggleManifestFilter(${repoId}, '${m}')" id="manifest-${repoId}-${m}" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 h-4 w-4 cursor-pointer">
                   <span class="font-semibold text-slate-700 truncate max-w-[150px] font-mono">${m}</span>
                 </span>
-                <span class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider border ${isEmpty ? 'bg-slate-150/40 text-slate-400 border-slate-205' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}">
+                <span class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider border ${isEmpty ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}">
                   ${isEmpty ? 'Empty' : 'Active'}
                 </span>
               `;
@@ -383,7 +385,7 @@
             });
             
             if (manifests.length === 0) {
-              manifestFiltersDiv.innerHTML = `<span class="text-slate-400 italic text-[11px]">No manifests detected</span>`;
+              manifestFiltersDiv.innerHTML = `<span class="text-slate-600 italic text-[11px]">No manifests detected</span>`;
             }
           }
 
@@ -557,7 +559,7 @@
         `;
       } else {
         container.innerHTML = `
-          <div class="flex items-center justify-center py-6 text-slate-400 italic text-xs">
+          <div class="flex items-center justify-center py-6 text-slate-600 italic text-xs">
             No package SemVer constraints found.
           </div>
         `;
@@ -582,7 +584,7 @@
     if (Object.keys(groups).length === 0) {
       container.innerHTML = `
         <div class="flex items-center justify-center py-8">
-          <span class="text-xs text-slate-400 italic">All manifests are filtered out.</span>
+          <span class="text-xs text-slate-600 italic">All manifests are filtered out.</span>
         </div>
       `;
       return;
@@ -605,7 +607,7 @@
 
       const actualPackages = groupData.filter(d => d.package);
       if (actualPackages.length === 0) {
-        chartDiv.innerHTML = `<span class="text-xs text-slate-400 italic block pl-4 pb-2">No package constraints tracked in this manifest.</span>`;
+        chartDiv.innerHTML = `<span class="text-xs text-slate-600 italic block pl-4 pb-2">No package constraints tracked in this manifest.</span>`;
       } else {
         renderSingleChart(chartDiv, actualPackages, isPremium, alertConfig);
       }

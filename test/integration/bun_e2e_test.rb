@@ -66,7 +66,7 @@ class BunE2eTest < ActionDispatch::IntegrationTest
     assert token.present?, "Registration token was empty"
 
     # 2. Run our helper setup-bun-chain.ts to replay and push the chain
-    setup_script = "/home/aaron/dev/packablock/packablock-demo/tests/setup-bun-chain.ts"
+    setup_script = "/home/aaron/dev/packablock/examples/tests/setup-bun-chain.ts"
     success = system({ "PATH" => @path_with_bun }, "bun run #{setup_script} #{token} http://localhost:3031")
     assert success, "setup-bun-chain.ts failed to run successfully"
 
