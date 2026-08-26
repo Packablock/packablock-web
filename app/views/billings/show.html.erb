@@ -9,7 +9,7 @@
       </div>
       <div>
         <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Billing & Subscription</h1>
-        <p class="text-sm text-slate-500">Review your payment options, add billing methods, and manage subscription invoices.</p>
+        <p class="text-sm text-slate-600">Review your payment options, add billing methods, and manage subscription invoices.</p>
       </div>
     </div>
   </div>
@@ -25,7 +25,7 @@
         <div class="flex justify-between items-center flex-wrap gap-4">
           <div>
             <h2 class="text-xl font-bold text-slate-900">Payment Methods</h2>
-            <p class="text-xs text-slate-500">Cards and payment schemes linked to your organization account.</p>
+            <p class="text-xs text-slate-600">Cards and payment schemes linked to your organization account.</p>
           </div>
           
           <% if @stripe_configured %>
@@ -50,7 +50,7 @@
             <span class="text-3xl">🔌</span>
             <div>
               <p class="text-sm font-bold text-slate-800">Stripe Key Unconfigured</p>
-              <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Please define <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-600">STRIPE_SECRET_KEY</code> in your environment parameters to connect the billing engine portal.</p>
+              <p class="text-xs text-slate-600 mt-1 max-w-sm mx-auto">Please define <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-600">STRIPE_SECRET_KEY</code> in your environment parameters to connect the billing engine portal.</p>
             </div>
           </div>
         <% else %>
@@ -59,7 +59,7 @@
               <span class="text-3xl">💳</span>
               <div>
                 <p class="text-sm font-bold text-slate-800">No active billing methods</p>
-                <p class="text-xs text-slate-500 mt-1">Add a credit card to upgrade repository ledgers to the Premium status tier.</p>
+                <p class="text-xs text-slate-600 mt-1">Add a credit card to upgrade repository ledgers to the Premium status tier.</p>
               </div>
               
               <%= button_to portal_session_billing_path, method: :post, class: "mx-auto px-4 py-2 text-xs font-bold rounded-lg bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200 transition-all uppercase tracking-wider" do %>
@@ -78,7 +78,7 @@
                     </div>
                     <div>
                       <span class="text-sm font-bold text-slate-800 uppercase tracking-wide"><%= pm.card.brand.to_s.upcase %> •••• <%= pm.card.last4 %></span>
-                      <span class="text-xs text-slate-400 block mt-0.5">Expires <%= pm.card.exp_month %>/<%= pm.card.exp_year %></span>
+                      <span class="text-xs text-slate-600 block mt-0.5">Expires <%= pm.card.exp_month %>/<%= pm.card.exp_year %></span>
                     </div>
                   </div>
                   
@@ -101,7 +101,7 @@
       <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-4.5">
         <div>
           <h2 class="text-lg font-bold text-slate-900">Billing Portal redirect</h2>
-          <p class="text-xs text-slate-500">How your payment profile is handled.</p>
+          <p class="text-xs text-slate-600">How your payment profile is handled.</p>
         </div>
 
         <div class="flex flex-col gap-3.5 text-xs text-slate-600 bg-slate-50 rounded-xl p-4.5 border border-slate-200/60 leading-relaxed">
@@ -124,12 +124,12 @@
       <div class="border border-slate-200 rounded-xl bg-white shadow-sm p-6 flex flex-col gap-4.5">
         <div>
           <h2 class="text-lg font-bold text-slate-900">Sandbox Diagnostics</h2>
-          <p class="text-xs text-slate-500">Stripe integration metadata logs.</p>
+          <p class="text-xs text-slate-600">Stripe integration metadata logs.</p>
         </div>
 
         <div class="flex flex-col gap-3.5 bg-slate-50 rounded-xl p-4.5 border border-slate-200/60 font-mono text-[11px] text-slate-600 leading-normal">
           <div class="flex justify-between items-center font-sans">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Engine status</span>
+            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Engine status</span>
             <% if @stripe_configured %>
               <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50 text-blue-700 uppercase tracking-wider">Ready</span>
             <% else %>
@@ -138,12 +138,12 @@
           </div>
 
           <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider font-sans">Stripe Customer ID</span>
+            <span class="text-xs font-bold text-slate-600 uppercase tracking-wider font-sans">Stripe Customer ID</span>
             <span class="text-slate-700 select-all font-semibold"><%= @admin.stripe_customer_id.present? ? @admin.stripe_customer_id : "None" %></span>
           </div>
 
           <div class="h-px bg-slate-200/70 my-0.5"></div>
-          <div class="text-[10px] text-slate-400 font-sans italic leading-relaxed">
+          <div class="text-[10px] text-slate-600 font-sans italic leading-relaxed">
             Customer portal session redirects inherit active customer accounts and allow automatic sandbox payment testing using Stripe test card numbers.
           </div>
         </div>
