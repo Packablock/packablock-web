@@ -233,7 +233,7 @@ GEM
       railties (>= 7.0.0)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    image_processing (2.0.2)
+    image_processing (2.1.0)
     importmap-rails (2.2.3)
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
@@ -537,7 +537,7 @@ DEPENDENCIES
   faraday
   google-cloud-kms
   hotwire-livereload
-  image_processing (~> 2.0)
+  image_processing (~> 2.1)
   importmap-rails
   jbuilder
   kamal
