@@ -49,6 +49,7 @@ puts " seeded projects"
 
 # Link repositories by ID
 active_links = {
+  1 => defense,
   2 => audit,
   3 => ecommerce,
   4 => ecommerce,
