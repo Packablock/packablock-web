@@ -29,5 +29,5 @@ production:
   username: <%= ENV['DB_USER'] || 'postgres' %>
   password: <%= ENV['DB_PASSWORD'] %>
   # Connecting via Unix socket folder for Cloud Run proxy linkage
-  host: <%= ENV['DB_SOCKET_DIR'] || '/cloudsql/adwb-4444:us-west1:packablock-shared-db' %>
+  host: <%= ENV['DB_SOCKET_DIR'] || '/cloudsql/packablock-prod:us-west1:packablock-shared-db' %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>

@@ -10,12 +10,12 @@ permissions:
   id-token: 'write' # Required for Workload Identity Federation OIDC token request
 
 env:
-  PROJECT_ID: 'adwb-4444'
+  PROJECT_ID: 'packablock-prod'
   REGION: 'us-west1'
-  GAR_REPO: 'us-west1-docker.pkg.dev/adwb-4444/packablock-images'
+  GAR_REPO: 'us-west1-docker.pkg.dev/packablock-prod/packablock-images'
   SERVICE_NAME: 'packablock-web'
-  DB_INSTANCE_CONNECTION: 'adwb-4444:us-west1:packablock-shared-db'
-  REGISTRY_API_URL: 'https://packablock-registry-450487093520.us-west1.run.app'
+  DB_INSTANCE_CONNECTION: 'packablock-prod:us-west1:packablock-shared-db'
+  REGISTRY_API_URL: 'https://packablock-registry-867441258076.us-west1.run.app'
 
 jobs:
   deploy:
@@ -57,8 +57,8 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: 'projects/450487093520/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
-          service_account: 'gh-deployer@adwb-4444.iam.gserviceaccount.com'
+          workload_identity_provider: 'projects/867441258076/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+          service_account: 'gh-deployer@packablock-prod.iam.gserviceaccount.com'
 
       # 3. Authenticate Docker with Artifact Registry
       - name: Configure Docker
@@ -113,3 +113,8 @@ jobs:
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             REGISTRY_API_URL=${{ env.REGISTRY_API_URL }}
             INTERNAL_REGISTRY_TOKEN=internal_secret_token_1234
+            GCP_PROJECT_ID=packablock-prod
+            GCP_KMS_LOCATION=us-west1
+            GCP_KMS_KEY_RING=packablock-keyring
+            GCP_KMS_KEY_NAME=stripe-secret-key
+            STRIPE_PROD_SECRET_KEY_CIPHERTEXT=CiQAiAM9Jnx06Bb1PsePa+5h8PI9CFpI98k4ojyBfFynPB0DAr4SlAEA8tYUX9ABqVGyyAGqunmt+aKQCbsjj/RurZqQrKdMDqcxkpAcjUShgEthG99NsNf8JcXsoj3m9nnRNUq4szD8LVs35aL73z/WoKK+YrQwS6v0LJpZEHSv+o8h9+E5LD89fooT/xPEoFHepVFvDGTdVoERK3ELiWUnKQC6ld6RbD12RYKXtQh6gQCs1T9tOJV+/oOe
